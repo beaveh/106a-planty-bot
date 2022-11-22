@@ -1,0 +1,8 @@
+prefix=/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel
+
+Name: turtlebot3_automatic_parking
+Description: Description of turtlebot3_automatic_parking
+Version: 1.1.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: rospy std_msgs sensor_msgs geometry_msgs nav_msgs
