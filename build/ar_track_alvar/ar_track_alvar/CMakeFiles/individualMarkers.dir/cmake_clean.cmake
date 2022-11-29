@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/lib/ar_track_alvar/individualMarkers"
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/lib/ar_track_alvar/individualMarkers.pdb"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/lib/ar_track_alvar/individualMarkers"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/lib/ar_track_alvar/individualMarkers.pdb"
   "CMakeFiles/individualMarkers.dir/nodes/IndividualMarkers.cpp.o"
 )
 

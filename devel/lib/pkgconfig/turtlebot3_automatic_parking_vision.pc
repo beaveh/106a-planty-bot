@@ -1,4 +1,4 @@
-prefix=/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel
+prefix=/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel
 
 Name: turtlebot3_automatic_parking_vision
 Description: Description of turtlebot3_automatic_parking_vision

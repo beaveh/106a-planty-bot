@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/lib/ar_track_alvar/individualMarkersNoKinect"
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/lib/ar_track_alvar/individualMarkersNoKinect.pdb"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/lib/ar_track_alvar/individualMarkersNoKinect"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/lib/ar_track_alvar/individualMarkersNoKinect.pdb"
   "CMakeFiles/individualMarkersNoKinect.dir/nodes/IndividualMarkersNoKinect.cpp.o"
 )
 

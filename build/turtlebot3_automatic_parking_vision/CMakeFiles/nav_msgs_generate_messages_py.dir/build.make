@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/src
+CMAKE_SOURCE_DIR = /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build
+CMAKE_BINARY_DIR = /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build
 
 # Utility rule file for nav_msgs_generate_messages_py.
 
@@ -63,10 +63,10 @@ turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_py.dir
 .PHONY : turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_py.dir/build
 
 turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_py.dir/clean:
-	cd /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build/turtlebot3_automatic_parking_vision && $(CMAKE_COMMAND) -P CMakeFiles/nav_msgs_generate_messages_py.dir/cmake_clean.cmake
+	cd /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/turtlebot3_automatic_parking_vision && $(CMAKE_COMMAND) -P CMakeFiles/nav_msgs_generate_messages_py.dir/cmake_clean.cmake
 .PHONY : turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_py.dir/clean
 
 turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_py.dir/depend:
-	cd /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/src /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/src/turtlebot3_automatic_parking_vision /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build/turtlebot3_automatic_parking_vision /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build/turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_py.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src/turtlebot3_automatic_parking_vision /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/turtlebot3_automatic_parking_vision /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_py.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_py.dir/depend
 

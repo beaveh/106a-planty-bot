@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/lib/libar_track_alvar.pdb"
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/lib/libar_track_alvar.so"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/lib/libar_track_alvar.pdb"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/lib/libar_track_alvar.so"
   "CMakeFiles/ar_track_alvar.dir/src/Bitset.cpp.o"
   "CMakeFiles/ar_track_alvar.dir/src/Camera.cpp.o"
   "CMakeFiles/ar_track_alvar.dir/src/CaptureDevice.cpp.o"

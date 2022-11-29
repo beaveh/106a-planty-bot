@@ -67,14 +67,14 @@ set(turtlebot3_automatic_parking_vision_CONFIG_INCLUDED TRUE)
 
 # set variables for source/devel/install prefixes
 if("FALSE" STREQUAL "TRUE")
-  set(turtlebot3_automatic_parking_vision_SOURCE_PREFIX /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/src/turtlebot3_automatic_parking_vision)
-  set(turtlebot3_automatic_parking_vision_DEVEL_PREFIX /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel)
+  set(turtlebot3_automatic_parking_vision_SOURCE_PREFIX /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src/turtlebot3_automatic_parking_vision)
+  set(turtlebot3_automatic_parking_vision_DEVEL_PREFIX /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel)
   set(turtlebot3_automatic_parking_vision_INSTALL_PREFIX "")
   set(turtlebot3_automatic_parking_vision_PREFIX ${turtlebot3_automatic_parking_vision_DEVEL_PREFIX})
 else()
   set(turtlebot3_automatic_parking_vision_SOURCE_PREFIX "")
   set(turtlebot3_automatic_parking_vision_DEVEL_PREFIX "")
-  set(turtlebot3_automatic_parking_vision_INSTALL_PREFIX /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/install)
+  set(turtlebot3_automatic_parking_vision_INSTALL_PREFIX /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/install)
   set(turtlebot3_automatic_parking_vision_PREFIX ${turtlebot3_automatic_parking_vision_INSTALL_PREFIX})
 endif()
 
@@ -154,7 +154,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/install/lib;/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/lib;/opt/ros/noetic/lib)
+    foreach(path /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/install/lib;/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/lib;/opt/ros/noetic/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)

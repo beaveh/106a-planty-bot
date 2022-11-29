@@ -1,9 +1,9 @@
 file(REMOVE_RECURSE
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/include/ar_track_alvar/ParamsConfig.h"
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/lib/python3/dist-packages/ar_track_alvar/cfg/ParamsConfig.py"
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/share/ar_track_alvar/docs/ParamsConfig-usage.dox"
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/share/ar_track_alvar/docs/ParamsConfig.dox"
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/share/ar_track_alvar/docs/ParamsConfig.wikidoc"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/include/ar_track_alvar/ParamsConfig.h"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/lib/python3/dist-packages/ar_track_alvar/cfg/ParamsConfig.py"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/share/ar_track_alvar/docs/ParamsConfig-usage.dox"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/share/ar_track_alvar/docs/ParamsConfig.dox"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/share/ar_track_alvar/docs/ParamsConfig.wikidoc"
   "CMakeFiles/ar_track_alvar_gencfg"
 )
 

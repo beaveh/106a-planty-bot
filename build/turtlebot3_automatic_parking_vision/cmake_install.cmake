@@ -1,8 +1,8 @@
-# Install script for directory: /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/src/turtlebot3_automatic_parking_vision
+# Install script for directory: /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src/turtlebot3_automatic_parking_vision
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/install")
+  set(CMAKE_INSTALL_PREFIX "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -38,32 +38,32 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  include("/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build/turtlebot3_automatic_parking_vision/catkin_generated/safe_execute_install.cmake")
+  include("/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/turtlebot3_automatic_parking_vision/catkin_generated/safe_execute_install.cmake")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build/turtlebot3_automatic_parking_vision/catkin_generated/installspace/turtlebot3_automatic_parking_vision.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/turtlebot3_automatic_parking_vision/catkin_generated/installspace/turtlebot3_automatic_parking_vision.pc")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/turtlebot3_automatic_parking_vision/cmake" TYPE FILE FILES
-    "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build/turtlebot3_automatic_parking_vision/catkin_generated/installspace/turtlebot3_automatic_parking_visionConfig.cmake"
-    "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build/turtlebot3_automatic_parking_vision/catkin_generated/installspace/turtlebot3_automatic_parking_visionConfig-version.cmake"
+    "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/turtlebot3_automatic_parking_vision/catkin_generated/installspace/turtlebot3_automatic_parking_visionConfig.cmake"
+    "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/turtlebot3_automatic_parking_vision/catkin_generated/installspace/turtlebot3_automatic_parking_visionConfig-version.cmake"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/turtlebot3_automatic_parking_vision" TYPE FILE FILES "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/src/turtlebot3_automatic_parking_vision/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/turtlebot3_automatic_parking_vision" TYPE FILE FILES "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src/turtlebot3_automatic_parking_vision/package.xml")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/turtlebot3_automatic_parking_vision" TYPE PROGRAM FILES "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build/turtlebot3_automatic_parking_vision/catkin_generated/installspace/automatic_parking_vision")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/turtlebot3_automatic_parking_vision" TYPE PROGRAM FILES "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/turtlebot3_automatic_parking_vision/catkin_generated/installspace/automatic_parking_vision")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/turtlebot3_automatic_parking_vision" TYPE DIRECTORY FILES
-    "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/src/turtlebot3_automatic_parking_vision/launch"
-    "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/src/turtlebot3_automatic_parking_vision/rviz"
+    "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src/turtlebot3_automatic_parking_vision/launch"
+    "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src/turtlebot3_automatic_parking_vision/rviz"
     )
 endif()
 

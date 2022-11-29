@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/include/ar_track_alvar_msgs/AlvarMarker.h"
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/include/ar_track_alvar_msgs/AlvarMarkers.h"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/include/ar_track_alvar_msgs/AlvarMarker.h"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/include/ar_track_alvar_msgs/AlvarMarkers.h"
   "CMakeFiles/ar_track_alvar_msgs_generate_messages_cpp"
 )
 

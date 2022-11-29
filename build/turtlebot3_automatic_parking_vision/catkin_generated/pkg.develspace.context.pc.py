@@ -4,5 +4,5 @@ PROJECT_PKG_CONFIG_INCLUDE_DIRS = "".split(';') if "" != "" else []
 PROJECT_CATKIN_DEPENDS = "rospy;std_msgs;sensor_msgs;geometry_msgs;nav_msgs;ar_track_alvar;ar_track_alvar_msgs".replace(';', ' ')
 PKG_CONFIG_LIBRARIES_WITH_PREFIX = "".split(';') if "" != "" else []
 PROJECT_NAME = "turtlebot3_automatic_parking_vision"
-PROJECT_SPACE_DIR = "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel"
+PROJECT_SPACE_DIR = "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel"
 PROJECT_VERSION = "1.1.0"

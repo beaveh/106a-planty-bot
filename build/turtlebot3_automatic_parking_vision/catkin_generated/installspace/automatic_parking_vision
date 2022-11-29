@@ -335,7 +335,6 @@ class AutomaticParkingVision():
         rospy.spin()
 
 if __name__ == '__main__':
-    print("------------------------------------------------")
     rospy.init_node('automatic_parking_vision')
     node = AutomaticParkingVision()
     node.main()

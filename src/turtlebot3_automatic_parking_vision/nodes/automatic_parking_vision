@@ -28,7 +28,9 @@ from ar_track_alvar_msgs.msg import AlvarMarkers
 from geometry_msgs.msg import Twist
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 import math
+import tf2_ros
 import time
+from geometry_msgs.msg import Vector3
 
 MARKER_ID_DETECTION = 0
 
@@ -58,6 +60,7 @@ class AutomaticParkingVision():
         self.is_sequence_finished = False
 
         self.is_odom_received = False
+
         self.is_marker_pose_received = False
 
         loop_rate = rospy.Rate(10) # 10hz
@@ -141,6 +144,52 @@ class AutomaticParkingVision():
             print("Finished 5")
             self.current_parking_sequence = self.ParkingSequence.finished.value
             rospy.on_shutdown(self.fnShutDown)
+    
+    def controller(turtlebot_frame, goal_frame):
+    
+        #Create a publisher and a tf buffer, which is primed with a tf listener
+    
+        tfBuffer = tf2_ros.Buffer()
+        tfListener = tf2_ros.TransformListener(tfBuffer)
+        
+        # Create a timer object that will sleep long enough to result in
+        # a 10Hz publishing rate
+        r = rospy.Rate(10) # 10hz
+
+        K1 = -0.3
+        K2 = 1
+        x = Twist()
+        x.linear = Vector3()
+        x.angular = Vector3()
+        x.linear.y = 0
+        x.linear.z = 0
+        x.angular.x = 0
+        x.angular.y = 0
+        x.linear.x = 0
+        x.angular.z = 0
+
+
+
+
+        # Loop until the node is killed with Ctrl-C
+        while not rospy.is_shutdown():
+            trans = tfBuffer.lookup_transform(goal_frame, turtlebot_frame, rospy.Time())
+            t = trans.transform.translation
+            x.linear.x = t.x * K1
+            x.angular.z = t.y * K2
+            
+
+
+            # Process trans to get your state error
+            # Generate a control command to send to the robot
+
+            control_command = x
+
+            #################################### end your code ###############
+
+            self.pub_cmd_vel.publish(control_command)
+
+
 
     def fnSeqSearchingGoal(self):
         if self.is_marker_pose_received is False:
@@ -148,6 +197,10 @@ class AutomaticParkingVision():
             self.fnTurn(self.desired_angle_turn)
         else:
             self.fnStop()
+            # turtlebot_frame = self.sub_odom_robot
+            # goal_frame = self.sub_info_marker
+            # self.controller(turtlebot_frame, goal_frame)
+
             return True
 
     def fnSeqChangingDirection(self):
@@ -165,6 +218,8 @@ class AutomaticParkingVision():
             return False
 
     def fnSeqMovingNearbyParkingLot(self):
+        while True:
+            self.fnStop()
         if self.current_nearby_sequence == self.NearbySequence.initial_turn.value:
             if self.is_triggered == False:
                 self.is_triggered = True

@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/src
+CMAKE_SOURCE_DIR = /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build
+CMAKE_BINARY_DIR = /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build
 
 # Utility rule file for tf_generate_messages_nodejs.
 
@@ -63,10 +63,10 @@ ar_track_alvar/ar_track_alvar/CMakeFiles/tf_generate_messages_nodejs.dir/build: 
 .PHONY : ar_track_alvar/ar_track_alvar/CMakeFiles/tf_generate_messages_nodejs.dir/build
 
 ar_track_alvar/ar_track_alvar/CMakeFiles/tf_generate_messages_nodejs.dir/clean:
-	cd /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build/ar_track_alvar/ar_track_alvar && $(CMAKE_COMMAND) -P CMakeFiles/tf_generate_messages_nodejs.dir/cmake_clean.cmake
+	cd /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/ar_track_alvar/ar_track_alvar && $(CMAKE_COMMAND) -P CMakeFiles/tf_generate_messages_nodejs.dir/cmake_clean.cmake
 .PHONY : ar_track_alvar/ar_track_alvar/CMakeFiles/tf_generate_messages_nodejs.dir/clean
 
 ar_track_alvar/ar_track_alvar/CMakeFiles/tf_generate_messages_nodejs.dir/depend:
-	cd /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/src /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/src/ar_track_alvar/ar_track_alvar /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build/ar_track_alvar/ar_track_alvar /home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build/ar_track_alvar/ar_track_alvar/CMakeFiles/tf_generate_messages_nodejs.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src/ar_track_alvar/ar_track_alvar /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/ar_track_alvar/ar_track_alvar /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/ar_track_alvar/ar_track_alvar/CMakeFiles/tf_generate_messages_nodejs.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : ar_track_alvar/ar_track_alvar/CMakeFiles/tf_generate_messages_nodejs.dir/depend
 

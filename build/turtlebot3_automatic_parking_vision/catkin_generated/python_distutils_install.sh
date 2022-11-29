@@ -13,21 +13,21 @@ fi
 
 echo_and_run() { echo "+ $@" ; "$@" ; }
 
-echo_and_run cd "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/src/turtlebot3_automatic_parking_vision"
+echo_and_run cd "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src/turtlebot3_automatic_parking_vision"
 
 # ensure that Python install destination exists
-echo_and_run mkdir -p "$DESTDIR/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/install/lib/python3/dist-packages"
+echo_and_run mkdir -p "$DESTDIR/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/install/lib/python3/dist-packages"
 
 # Note that PYTHONPATH is pulled from the environment to support installing
 # into one location when some dependencies were installed in another
 # location, #123.
 echo_and_run /usr/bin/env \
-    PYTHONPATH="/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/install/lib/python3/dist-packages:/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build/lib/python3/dist-packages:$PYTHONPATH" \
-    CATKIN_BINARY_DIR="/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build" \
+    PYTHONPATH="/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/install/lib/python3/dist-packages:/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/lib/python3/dist-packages:$PYTHONPATH" \
+    CATKIN_BINARY_DIR="/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build" \
     "/usr/bin/python3" \
-    "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/src/turtlebot3_automatic_parking_vision/setup.py" \
+    "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src/turtlebot3_automatic_parking_vision/setup.py" \
      \
-    build --build-base "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/build/turtlebot3_automatic_parking_vision" \
+    build --build-base "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/turtlebot3_automatic_parking_vision" \
     install \
     --root="${DESTDIR-/}" \
-    --install-layout=deb --prefix="/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/install" --install-scripts="/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/install/bin"
+    --install-layout=deb --prefix="/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/install" --install-scripts="/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/install/bin"

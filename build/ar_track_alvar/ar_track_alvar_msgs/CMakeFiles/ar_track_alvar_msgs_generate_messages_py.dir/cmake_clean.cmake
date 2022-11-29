@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/lib/python3/dist-packages/ar_track_alvar_msgs/msg/_AlvarMarker.py"
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/lib/python3/dist-packages/ar_track_alvar_msgs/msg/_AlvarMarkers.py"
-  "/home/cc/ee106a/fa22/class/ee106a-acz/ros_workspaces/planty-bot/devel/lib/python3/dist-packages/ar_track_alvar_msgs/msg/__init__.py"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/lib/python3/dist-packages/ar_track_alvar_msgs/msg/_AlvarMarker.py"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/lib/python3/dist-packages/ar_track_alvar_msgs/msg/_AlvarMarkers.py"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/lib/python3/dist-packages/ar_track_alvar_msgs/msg/__init__.py"
   "CMakeFiles/ar_track_alvar_msgs_generate_messages_py"
 )
 
