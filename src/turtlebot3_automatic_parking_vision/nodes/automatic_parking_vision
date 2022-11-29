@@ -30,7 +30,7 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 import math
 import time
 
-MARKER_ID_DETECTION = 10
+MARKER_ID_DETECTION = 0
 
 class AutomaticParkingVision():
     def __init__(self):
@@ -62,6 +62,7 @@ class AutomaticParkingVision():
 
         loop_rate = rospy.Rate(10) # 10hz
         while not rospy.is_shutdown():
+            print("reached")
             if self.is_odom_received is True:
                 self.fnParking()
             
@@ -75,10 +76,7 @@ class AutomaticParkingVision():
         
         pos_x, pos_y, theta = self.fnGet2DRobotPose(robot_odom_msg)
 
-        self.robot_2d_pose_x = pos_x
-        self.robot_2d_pose_y = pos_y
-        self.robot_2d_theta = theta
-
+        self.robot_2d_pose_x =print
         if (self.robot_2d_theta - self.previous_robot_2d_theta) > 5.:
             d_theta = (self.robot_2d_theta - self.previous_robot_2d_theta) - 2 * math.pi
         elif (self.robot_2d_theta - self.previous_robot_2d_theta) < -5.:
@@ -96,7 +94,7 @@ class AutomaticParkingVision():
             if marker_odom_msg.id == MARKER_ID_DETECTION:
                 if self.is_marker_pose_received == False:
                     self.is_marker_pose_received = True
-
+                
                 pos_x, pos_y, theta = self.fnGet2DMarkerPose(marker_odom_msg)
 
                 self.marker_2d_pose_x = pos_x
@@ -146,7 +144,7 @@ class AutomaticParkingVision():
 
     def fnSeqSearchingGoal(self):
         if self.is_marker_pose_received is False:
-            self.desired_angle_turn = 0 #-0.6
+            self.desired_angle_turn = -0.6
             self.fnTurn(self.desired_angle_turn)
         else:
             self.fnStop()
@@ -250,7 +248,7 @@ class AutomaticParkingVision():
         self.pub_cmd_vel.publish(twist)
 
     def fnTurn(self, theta):
-        Kp = 0.8
+        Kp = 0.6
 
         angular_z = Kp * theta
 
