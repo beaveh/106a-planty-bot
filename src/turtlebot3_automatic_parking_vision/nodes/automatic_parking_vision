@@ -43,14 +43,14 @@ class AutomaticParkingVision():
 
     def __init__(self):
         br = tf2_ros.TransformBroadcaster()
-        t = TransformStamped()
+        self.t = TransformStamped()
 
-        t.header.frame_id = "camera"
-        t.child_frame_id = "robot"
+        self.t.header.frame_id = "camera"
+        self.t.child_frame_id = "robot"
 
-        a = TransformStamped()
-        a.header.frame_id = "camera"
-        a.child_frame_id = "ar"
+        self.a = TransformStamped()
+        self.a.header.frame_id = "camera"
+        self.a.child_frame_id = "ar"
 
         self.sub_odom_robot = rospy.Subscriber('/odom', Odometry, self.cbGetRobotOdom, queue_size = 1)
         self.sub_info_marker = rospy.Subscriber('/ar_pose_marker', AlvarMarkers, self.cbGetMarkerOdom, queue_size = 1)
@@ -79,65 +79,68 @@ class AutomaticParkingVision():
         while not rospy.is_shutdown():
             print("reached")
             if self.is_odom_received is True:
-                self.controller(a, t)
+                self.controller(self.a.child_frame_id, self.t.child_frame_id)
             
             loop_rate.sleep()
 
         rospy.on_shutdown(self.fnShutDown)
-    def controller(self, a, t):
+
+    def controller(self, ar, robot):
         #Create a publisher and a tf buffer, which is primed with a tf listener
-
-        
-
-        turtlebot_frame = self.sub_odom_robot
-        goal_frame = self.sub_info_marker
-
-        t.transform = turtlebot_frame
-        a.transform = goal_frame
-
-        tfBuffer = tf2_ros.Buffer()
-        tfListener = tf2_ros.TransformListener(tfBuffer)
-        
-        # Create a timer object that will sleep long enough to result in
-        # a 10Hz publishing rate
-        r = rospy.Rate(10) # 10hz
-
-        K1 = -0.3
-        K2 = 1
-        x = Twist()
-        x.linear = Vector3()
-        x.angular = Vector3()
-        x.linear.y = 0
-        x.linear.z = 0
-        x.angular.x = 0
-        x.angular.y = 0
-        x.linear.x = 0
-        x.angular.z = 0
-
-
-
-
-        # Loop until the node is killed with Ctrl-C
-        while not rospy.is_shutdown():
-            trans = tfBuffer.lookup_transform("ar", "robot", rospy.Time())
-            t = trans.transform.translation
-            x.linear.x = t.x * K1
-            x.angular.z = t.y * K2
             
+        
 
-
-            # Process trans to get your state error
-            # Generate a control command to send to the robot
-
-            control_command = x
 
             #################################### end your code ###############
 
-            if self.is_marker_pose_received is False:
-                self.desired_angle_turn = -0.6
-                self.fnTurn(self.desired_angle_turn)
-            else:
-                self.fnStop()
+        if self.is_marker_pose_received is False:
+            self.desired_angle_turn = -0.6
+            self.fnTurn(self.desired_angle_turn)
+        else:
+
+            self.fnStop()
+
+            turtlebot_frame = self.sub_odom_robot
+            goal_frame = self.sub_info_marker
+
+            self.t.transform = turtlebot_frame
+            self.a.transform = goal_frame
+
+            tfBuffer = tf2_ros.Buffer()
+            tfListener = tf2_ros.TransformListener(tfBuffer)
+            
+            # Create a timer object that will sleep long enough to result in
+            # a 10Hz publishing rate
+            r = rospy.Rate(10) # 10hz
+
+            K1 = -0.3
+            K2 = 1
+            x = Twist()
+            x.linear = Vector3()
+            x.angular = Vector3()
+            x.linear.y = 0
+            x.linear.z = 0
+            x.angular.x = 0
+            x.angular.y = 0
+            x.linear.x = 0
+            x.angular.z = 0
+
+
+
+
+            # Loop until the node is killed with Ctrl-C
+            while not rospy.is_shutdown():
+                trans = tfBuffer.lookup_transform(ar, robot, rospy.Time())
+                t = trans.transform.translation
+                x.linear.x = t.x * K1
+                x.angular.z = t.y * K2
+                
+
+
+                # Process trans to get your state error
+                # Generate a control command to send to the robot
+
+                control_command = x
                 self.pub_cmd_vel.publish(control_command)
 
 
@@ -171,9 +174,7 @@ class AutomaticParkingVision():
                 
                 marker_transform = self.fnGet2DMarkerPose(marker_odom_msg)
 
-                self.marker_2d_pose_x = pos_x
-                self.marker_2d_pose_y = pos_y
-                self.marker_2d_theta = theta - math.pi
+           
 
                 return marker_transform
 
