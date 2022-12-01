@@ -62,7 +62,6 @@ class AutomaticParkingVision():
 
         loop_rate = rospy.Rate(10) # 10hz
         while not rospy.is_shutdown():
-            print("reached")
             if self.is_odom_received is True:
                 self.fnParking()
             
@@ -76,7 +75,10 @@ class AutomaticParkingVision():
         
         pos_x, pos_y, theta = self.fnGet2DRobotPose(robot_odom_msg)
 
-        self.robot_2d_pose_x =print
+        self.robot_2d_pose_x = pos_x
+        self.robot_2d_pose_y = pos_y
+        self.robot_2d_theta = theta
+
         if (self.robot_2d_theta - self.previous_robot_2d_theta) > 5.:
             d_theta = (self.robot_2d_theta - self.previous_robot_2d_theta) - 2 * math.pi
         elif (self.robot_2d_theta - self.previous_robot_2d_theta) < -5.:
@@ -151,10 +153,9 @@ class AutomaticParkingVision():
             return True
 
     def fnSeqChangingDirection(self):
-        desired_angle_turn = -1. *  math.atan2(self.marker_2d_pose_y - 0, self.marker_2d_pose_x - 0)
+        desired_angle_turn = -1. *  math.atan2(self.marker_2d_pose_x - 0, self.marker_2d_pose_y - 0)
 
-        # rospy.loginfo("desired_angle_turn %f self.marker_2d_pose_x %f self.marker_2d_pose_y %f"
-        # , desired_angle_turn, self.marker_2d_pose_x, self.marker_2d_pose_y)
+        rospy.loginfo("desired_angle_turn %f self.marker_2d_pose_x %f self.marker_2d_pose_y %f", desired_angle_turn, self.marker_2d_pose_x, self.marker_2d_pose_y)
 
         self.fnTurn(desired_angle_turn)
         
@@ -179,25 +180,23 @@ class AutomaticParkingVision():
             elif self.initial_marker_pose_theta > 0.0:
                 desired_angle_turn = -(math.pi / 2.0) + self.initial_marker_pose_theta - (self.robot_2d_theta - self.initial_robot_pose_theta)
 
-            # rospy.loginfo("desired_angle_turn %f self.initial_marker_pose_theta %f self.robot_2d_theta %f self.initial_robot_pose_theta %f"
-            # , desired_angle_turn, self.initial_marker_pose_theta, self.robot_2d_theta, self.initial_robot_pose_theta)
+            rospy.loginfo("desired_angle_turn %f self.initial_marker_pose_theta %f self.robot_2d_theta %f self.initial_robot_pose_theta %f", desired_angle_turn, self.initial_marker_pose_theta, self.robot_2d_theta, self.initial_robot_pose_theta)
 
             desired_angle_turn = -1. * desired_angle_turn
 
             self.fnTurn(desired_angle_turn)
+            # desired_angle_turn = 0
 
             if abs(desired_angle_turn) < 0.05:
                 self.fnStop()
                 self.current_nearby_sequence = self.NearbySequence.go_straight.value
                 self.is_triggered = False
-
+        
         elif self.current_nearby_sequence == self.NearbySequence.go_straight.value:
             dist_from_start = self.fnCalcDistPoints(self.initial_robot_pose_x, self.robot_2d_pose_x, self.initial_robot_pose_y, self.robot_2d_pose_y)
-
             desired_dist = self.initial_marker_pose_x * abs(math.cos((math.pi / 2.) - self.initial_marker_pose_theta))
             remained_dist = desired_dist - dist_from_start
-            # rospy.loginfo("remained_dist %f desired_dist %f dist_from_start %f", remained_dist, desired_dist, dist_from_start)
-
+            rospy.loginfo("remained_dist %f desired_dist %f dist_from_start %f", remained_dist, desired_dist, dist_from_start)
             self.fnGoStraight()
             if remained_dist < 0.01:
                 self.fnStop()
@@ -213,8 +212,7 @@ class AutomaticParkingVision():
             elif self.initial_marker_pose_theta > 0.0:
                 desired_angle_turn = (math.pi / 2.0) + (self.robot_2d_theta - self.initial_robot_pose_theta)
 
-            # rospy.loginfo("desired_angle_turn %f self.robot_2d_theta %f self.initial_robot_pose_theta %f"
-            # , desired_angle_turn, self.robot_2d_theta, self.initial_robot_pose_theta)
+            rospy.loginfo("desired_angle_turn %f self.robot_2d_theta %f self.initial_robot_pose_theta %f", desired_angle_turn, self.robot_2d_theta, self.initial_robot_pose_theta)
 
             self.fnTurn(desired_angle_turn)
 
@@ -304,7 +302,7 @@ class AutomaticParkingVision():
         theta = tf.transformations.euler_from_quaternion(quaternion)[2]
 
         theta = theta + np.pi / 2.
-        # rospy.loginfo("theta : %f", theta)
+        rospy.loginfo("theta : %f", theta)
 
         if theta < 0:
             theta = theta + np.pi * 2
