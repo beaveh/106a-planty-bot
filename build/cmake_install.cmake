@@ -134,6 +134,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/ar_track_alvar/ar_track_alvar_msgs/cmake_install.cmake")
   include("/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/ar_track_alvar/ar_track_alvar/cmake_install.cmake")
   include("/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/turtlebot3_automatic_parking_vision/cmake_install.cmake")
+  include("/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/ydlidar/cmake_install.cmake")
 
 endif()
 

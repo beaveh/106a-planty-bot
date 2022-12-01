@@ -23,6 +23,8 @@ set(CMAKE_MAKEFILE_DEPENDS
   "turtlebot3_automatic_parking_vision/catkin_generated/ordered_paths.cmake"
   "turtlebot3_automatic_parking_vision/catkin_generated/package.cmake"
   "turtlebot3_automatic_parking_vision/catkin_generated/setup_py_interrogation.cmake"
+  "ydlidar/catkin_generated/ordered_paths.cmake"
+  "ydlidar/catkin_generated/package.cmake"
   "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/share/ar_track_alvar/cmake/ar_track_alvarConfig-version.cmake"
   "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/share/ar_track_alvar/cmake/ar_track_alvarConfig.cmake"
   "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel/share/ar_track_alvar_msgs/cmake/ar_track_alvar_msgs-msg-extras.cmake"
@@ -38,6 +40,8 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src/turtlebot3_automatic_parking_vision/nodes/automatic_parking_vision"
   "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src/turtlebot3_automatic_parking_vision/package.xml"
   "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src/turtlebot3_automatic_parking_vision/setup.py"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src/ydlidar/CMakeLists.txt"
+  "/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src/ydlidar/package.xml"
   "/opt/ros/noetic/share/actionlib/cmake/actionlib-msg-extras.cmake"
   "/opt/ros/noetic/share/actionlib/cmake/actionlibConfig-version.cmake"
   "/opt/ros/noetic/share/actionlib/cmake/actionlibConfig.cmake"
@@ -342,6 +346,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "ar_track_alvar/ar_track_alvar_msgs/CMakeFiles/CMakeDirectoryInformation.cmake"
   "ar_track_alvar/ar_track_alvar/CMakeFiles/CMakeDirectoryInformation.cmake"
   "turtlebot3_automatic_parking_vision/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "ydlidar/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
@@ -489,4 +494,6 @@ set(CMAKE_DEPEND_INFO_FILES
   "turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_lisp.dir/DependInfo.cmake"
   "turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_eus.dir/DependInfo.cmake"
   "turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_cpp.dir/DependInfo.cmake"
+  "ydlidar/CMakeFiles/ydlidar_client.dir/DependInfo.cmake"
+  "ydlidar/CMakeFiles/ydlidar_node.dir/DependInfo.cmake"
   )

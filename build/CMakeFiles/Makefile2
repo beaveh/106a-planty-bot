@@ -57,6 +57,7 @@ all: gtest/all
 all: ar_track_alvar/ar_track_alvar_msgs/all
 all: ar_track_alvar/ar_track_alvar/all
 all: turtlebot3_automatic_parking_vision/all
+all: ydlidar/all
 
 .PHONY : all
 
@@ -65,6 +66,7 @@ preinstall: gtest/preinstall
 preinstall: ar_track_alvar/ar_track_alvar_msgs/preinstall
 preinstall: ar_track_alvar/ar_track_alvar/preinstall
 preinstall: turtlebot3_automatic_parking_vision/preinstall
+preinstall: ydlidar/preinstall
 
 .PHONY : preinstall
 
@@ -78,6 +80,7 @@ clean: gtest/clean
 clean: ar_track_alvar/ar_track_alvar_msgs/clean
 clean: ar_track_alvar/ar_track_alvar/clean
 clean: turtlebot3_automatic_parking_vision/clean
+clean: ydlidar/clean
 
 .PHONY : clean
 
@@ -331,6 +334,26 @@ turtlebot3_automatic_parking_vision/clean: turtlebot3_automatic_parking_vision/C
 turtlebot3_automatic_parking_vision/clean: turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_cpp.dir/clean
 
 .PHONY : turtlebot3_automatic_parking_vision/clean
+
+#=============================================================================
+# Directory level rules for directory ydlidar
+
+# Recursive "all" directory target.
+ydlidar/all: ydlidar/CMakeFiles/ydlidar_client.dir/all
+ydlidar/all: ydlidar/CMakeFiles/ydlidar_node.dir/all
+
+.PHONY : ydlidar/all
+
+# Recursive "preinstall" directory target.
+ydlidar/preinstall:
+
+.PHONY : ydlidar/preinstall
+
+# Recursive "clean" directory target.
+ydlidar/clean: ydlidar/CMakeFiles/ydlidar_client.dir/clean
+ydlidar/clean: ydlidar/CMakeFiles/ydlidar_node.dir/clean
+
+.PHONY : ydlidar/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/doxygen.dir
@@ -5039,6 +5062,60 @@ nav_msgs_generate_messages_cpp: turtlebot3_automatic_parking_vision/CMakeFiles/n
 turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_cpp.dir/clean:
 	$(MAKE) -f turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_cpp.dir/build.make turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_cpp.dir/clean
 .PHONY : turtlebot3_automatic_parking_vision/CMakeFiles/nav_msgs_generate_messages_cpp.dir/clean
+
+#=============================================================================
+# Target rules for target ydlidar/CMakeFiles/ydlidar_client.dir
+
+# All Build rule for target.
+ydlidar/CMakeFiles/ydlidar_client.dir/all:
+	$(MAKE) -f ydlidar/CMakeFiles/ydlidar_client.dir/build.make ydlidar/CMakeFiles/ydlidar_client.dir/depend
+	$(MAKE) -f ydlidar/CMakeFiles/ydlidar_client.dir/build.make ydlidar/CMakeFiles/ydlidar_client.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/CMakeFiles --progress-num=68,69 "Built target ydlidar_client"
+.PHONY : ydlidar/CMakeFiles/ydlidar_client.dir/all
+
+# Build rule for subdir invocation for target.
+ydlidar/CMakeFiles/ydlidar_client.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 ydlidar/CMakeFiles/ydlidar_client.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/CMakeFiles 0
+.PHONY : ydlidar/CMakeFiles/ydlidar_client.dir/rule
+
+# Convenience name for target.
+ydlidar_client: ydlidar/CMakeFiles/ydlidar_client.dir/rule
+
+.PHONY : ydlidar_client
+
+# clean rule for target.
+ydlidar/CMakeFiles/ydlidar_client.dir/clean:
+	$(MAKE) -f ydlidar/CMakeFiles/ydlidar_client.dir/build.make ydlidar/CMakeFiles/ydlidar_client.dir/clean
+.PHONY : ydlidar/CMakeFiles/ydlidar_client.dir/clean
+
+#=============================================================================
+# Target rules for target ydlidar/CMakeFiles/ydlidar_node.dir
+
+# All Build rule for target.
+ydlidar/CMakeFiles/ydlidar_node.dir/all:
+	$(MAKE) -f ydlidar/CMakeFiles/ydlidar_node.dir/build.make ydlidar/CMakeFiles/ydlidar_node.dir/depend
+	$(MAKE) -f ydlidar/CMakeFiles/ydlidar_node.dir/build.make ydlidar/CMakeFiles/ydlidar_node.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/CMakeFiles --progress-num=70,71,72,73,74,75,76,77,78,79 "Built target ydlidar_node"
+.PHONY : ydlidar/CMakeFiles/ydlidar_node.dir/all
+
+# Build rule for subdir invocation for target.
+ydlidar/CMakeFiles/ydlidar_node.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/CMakeFiles 10
+	$(MAKE) -f CMakeFiles/Makefile2 ydlidar/CMakeFiles/ydlidar_node.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/build/CMakeFiles 0
+.PHONY : ydlidar/CMakeFiles/ydlidar_node.dir/rule
+
+# Convenience name for target.
+ydlidar_node: ydlidar/CMakeFiles/ydlidar_node.dir/rule
+
+.PHONY : ydlidar_node
+
+# clean rule for target.
+ydlidar/CMakeFiles/ydlidar_node.dir/clean:
+	$(MAKE) -f ydlidar/CMakeFiles/ydlidar_node.dir/build.make ydlidar/CMakeFiles/ydlidar_node.dir/clean
+.PHONY : ydlidar/CMakeFiles/ydlidar_node.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.
