@@ -1,0 +1,8 @@
+prefix=/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/devel
+
+Name: hls_lfcd_lds_driver
+Description: Description of hls_lfcd_lds_driver
+Version: 1.1.2
+Cflags: -I/home/cc/ee106a/fa22/class/ee106a-aaz/ros_workspaces/106a-planty-bot/src/hls_lfcd_lds_driver/include -I/usr/include
+Libs: -L${prefix}/lib 
+Requires: roscpp std_msgs sensor_msgs
