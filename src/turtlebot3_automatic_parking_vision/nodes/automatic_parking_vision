@@ -30,7 +30,7 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 import math
 import time
 
-MARKER_ID_DETECTION = 17
+MARKER_ID_DETECTION = 12
 
 class AutomaticParkingVision():
     def __init__(self):
