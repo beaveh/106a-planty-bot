@@ -29,20 +29,28 @@ from geometry_msgs.msg import Twist
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 import math
 import time
+from sensor_msgs.msg import LaserScan
 
-MARKER_ID_DETECTION = 12
+MARKER_ID_DETECTION = 17
 
 class AutomaticParkingVision():
     def __init__(self):
         self.sub_odom_robot = rospy.Subscriber('/odom', Odometry, self.cbGetRobotOdom, queue_size = 1)
         self.sub_info_marker = rospy.Subscriber('/ar_pose_marker', AlvarMarkers, self.cbGetMarkerOdom, queue_size = 1)
+        # self.sub_lidar = rospy.Subscriber('/cmd_vel1', Twist, self.obstacle, queue_size=1)
 
         self.pub_cmd_vel = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
+        self._sensor_sub = rospy.Subscriber('/scan',
+                                    LaserScan,
+                                    self.SensorCallback,
+                                    queue_size=1)
 
         self.ParkingSequence = Enum('ParkingSequence', 'searching_parking_lot changing_direction moving_nearby_parking_lot parking stop finished')
         self.NearbySequence = Enum('NearbySequence', 'initial_turn go_straight turn_right parking')
+        self.ObstacleAvoidanceSequence = Enum('ObstacleAvoidanceSequence', 'search_for_space drive_straight')
         self.current_nearby_sequence = self.NearbySequence.initial_turn.value
         self.current_parking_sequence = self.ParkingSequence.searching_parking_lot.value
+        self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.search_for_space.value
 
         self.robot_2d_pose_x = .0
         self.robot_2d_pose_y = .0
@@ -54,8 +62,15 @@ class AutomaticParkingVision():
         self.previous_robot_2d_theta = .0
         self.total_robot_2d_theta = .0
         self.is_triggered = False
+        self.finished = False
 
         self.is_sequence_finished = False
+        self.obstacle_detected = False
+        self.currently_avoiding = False
+        self.obstacle_twist = None
+
+        self.search_left = False
+        self.avoid_turn_angle = 0.5
 
         self.is_odom_received = False
         self.is_marker_pose_received = False
@@ -69,6 +84,16 @@ class AutomaticParkingVision():
             loop_rate.sleep()
 
         rospy.on_shutdown(self.fnShutDown)
+
+    def cbObstacle(self, twist):
+        self.obstacle_detected = True
+        self.obstacle_twist = twist
+        try:
+            if twist.linear.x == 0 and twist.angular.z == 0:
+                self.obstacle_detected = False
+        except:
+            pass
+        #self.pub_cmd_vel.publish(twist)
 
     def cbGetRobotOdom(self, robot_odom_msg):
         if self.is_odom_received == False:
@@ -107,7 +132,17 @@ class AutomaticParkingVision():
                 self.marker_2d_theta = theta - math.pi
 
     def fnParking(self):
-        if self.current_parking_sequence == self.ParkingSequence.searching_parking_lot.value:
+        if self.current_parking_sequence == self.ParkingSequence.finished.value:
+            pass
+        elif self.obstacle_detected or self.currently_avoiding:
+            self.currently_avoiding = True
+            self.is_sequence_finished = self.fnAvoidObstacle()
+
+            if self.is_sequence_finished:
+                self.is_sequence_finished = False
+                self.current_parking_sequence = self.ParkingSequence.searching_parking_lot.value
+            
+        elif self.current_parking_sequence == self.ParkingSequence.searching_parking_lot.value:
             self.is_sequence_finished = self.fnSeqSearchingGoal()
             
             if self.is_sequence_finished == True:
@@ -156,8 +191,9 @@ class AutomaticParkingVision():
             rospy.sleep(3)
             return True
 
-    def fnSeqChangingDirection(self):
-        if self.is_triggered == False:
+    def fnAvoidObstacle(self):
+        if self.current_obstacle_avoid_sequence == self.ObstacleAvoidanceSequence.search_for_space.value:
+            if self.is_triggered == False:
                 self.is_triggered = True
                 self.initial_robot_pose_theta = self.robot_2d_theta
                 self.initial_robot_pose_x = self.robot_2d_pose_x
@@ -165,9 +201,57 @@ class AutomaticParkingVision():
                 self.initial_marker_pose_theta = self.marker_2d_theta
                 self.initial_marker_pose_x = self.marker_2d_pose_x
                 self.initial_marker_pose_y = self.marker_2d_pose_y
+            curr_theta = self.robot_2d_theta - self.initial_robot_pose_theta
+            if self.obstacle_detected:
+                if abs(curr_theta) < self.avoid_turn_angle:
+                    if self.search_left:
+                        self.fnTurn(-0.6)
+                    else:
+                        self.fnTurn(0.6)
+                else:
+                    self.search_left = not self.search_left
+                    self.avoid_turn_angle += 0.2
+                    self.is_triggered = False
+            else:
+                start_time = rospy.get_time()
+                while rospy.get_time() - start_time < 2:
+                    if self.search_left:
+                        self.fnTurn(-0.6)
+                    else:
+                        self.fnTurn(0.6)
+                self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.drive_straight.value
+        elif self.current_obstacle_avoid_sequence == self.ObstacleAvoidanceSequence.drive_straight.value:
+            start_time = rospy.get_time()
+            while rospy.get_time() - start_time < 2.5:
+                self.fnGoStraight()
+            # start_time = rospy.get_time()
+            # while rospy.get_time() - start_time < 3:
+            #     if self.search_left:
+            #         self.fnTurn(0.6)
+            #     else:
+            #         self.fnTurn(-0.6)
+            # start_time = rospy.get_time()
+            # while rospy.get_time() - start_time < 2.0:
+            #     self.fnGoStraight()
+            self.fnStop()
+            self.currently_avoiding = False
+            self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.search_for_space.value
+            return True
+        return False
+            
+    def fnSeqChangingDirection(self):
+        if self.is_triggered == False:
+            self.is_triggered = True
+            self.initial_robot_pose_theta = self.robot_2d_theta
+            self.initial_robot_pose_x = self.robot_2d_pose_x
+            self.initial_robot_pose_y = self.robot_2d_pose_y
+            self.initial_marker_pose_theta = self.marker_2d_theta
+            self.initial_marker_pose_x = self.marker_2d_pose_x
+            self.initial_marker_pose_y = self.marker_2d_pose_y
 
         start_angle = self.robot_2d_theta - self.initial_robot_pose_theta
-        marker_angle = math.atan2(self.initial_marker_pose_y, self.marker_2d_pose_x)
+        # TODO: CHECK THIS
+        marker_angle = math.atan2(self.initial_marker_pose_y, self.initial_marker_pose_x)
         while start_angle < 0.0:
             start_angle += math.pi*2
         while start_angle > math.pi*2:
@@ -177,27 +261,14 @@ class AutomaticParkingVision():
         while marker_angle > math.pi*2:
             marker_angle -= math.pi*2
         desired_angle_turn = start_angle - marker_angle
-        # while desired_angle_turn < 0.0:
-        #     desired_angle_turn += math.pi*2
-        # while desired_angle_turn > math.pi*2:
-        #     desired_angle_turn -= math.pi*2 
-        # if self.initial_marker_pose_theta < 0.0:
-        #     #desired_angle_turn = (math.pi / 2.0) + self.initial_marker_pose_theta - (self.robot_2d_theta - self.initial_robot_pose_theta)
-        #     desired_angle_turn = math.atan2(self.initial_marker_pose_y, self.marker_2d_pose_x) - (self.robot_2d_theta - self.initial_robot_pose_theta)
-        # elif self.initial_marker_pose_theta > 0.0:
-        #     desired_angle_turn = -(math.pi / 2.0) + self.initial_marker_pose_theta - (self.robot_2d_theta - self.initial_robot_pose_theta)
-        #     #desired_angle_turn = self.initial_marker_pose_theta - (self.robot_2d_theta - self.initial_robot_pose_theta)
-        #     desired_angle_turn = math.atan2(self.initial_marker_pose_y, self.marker_2d_pose_x) - (self.robot_2d_theta - self.initial_robot_pose_theta)
-        # if desired_angle_turn < 0.0:
-        #     desired_angle_turn += 2*math.pi
-        #rospy.loginfo("desired_angle_turn %f self.initial_marker_pose_theta %f self.robot_2d_theta %f self.initial_robot_pose_theta %f", desired_angle_turn, self.initial_marker_pose_theta, self.robot_2d_theta, self.initial_robot_pose_theta)
+       
         rospy.loginfo(f"marker_theta:{marker_angle}, robot_theta: {start_angle}, desired_angle_turn: {desired_angle_turn}")
         desired_angle_turn = -1. * desired_angle_turn
 
         self.fnTurn(desired_angle_turn)
         # desired_angle_turn = 0
 
-        if abs(desired_angle_turn) < 0.05:
+        if abs(desired_angle_turn) < 0.08:
             self.fnStop()
             self.current_nearby_sequence = self.NearbySequence.go_straight.value
             self.is_triggered = False
@@ -298,6 +369,9 @@ class AutomaticParkingVision():
         rospy.loginfo(f"distance: {self.marker_2d_pose_x}")
         if abs(self.marker_2d_pose_x) < 0.48:
             self.fnStop()
+            start_time = rospy.get_time()
+            while rospy.get_time() - start_time < 2:
+                self.fnGoStraight()
             return True
         else:
             return False
@@ -313,7 +387,7 @@ class AutomaticParkingVision():
         self.pub_cmd_vel.publish(twist)
 
     def fnTurn(self, theta):
-        Kp = 0.4
+        Kp = 0.5
 
         angular_z = Kp * theta
 
@@ -328,7 +402,7 @@ class AutomaticParkingVision():
 
     def fnGoStraight(self):
         twist = Twist()
-        twist.linear.x = 0.2
+        twist.linear.x = 0.1
         twist.linear.y = 0
         twist.linear.z = 0
         twist.angular.x = 0
@@ -396,7 +470,104 @@ class AutomaticParkingVision():
         twist.angular.x = 0
         twist.angular.y = 0
         twist.angular.z = 0
-        self.pub_cmd_vel.publish(twist) 
+        self.pub_cmd_vel.publish(twist)
+
+    def SensorCallback(self, msg):
+        tempr = []
+
+        maxi = len(msg.ranges) - 10
+        
+        for idx, r in enumerate(msg.ranges):
+            if idx < 10: 
+                tempr.append(r)
+            elif idx > 10 and idx < maxi:
+                tempr.append(0.0)
+            else:
+                tempr.append(r)
+
+        check = filter(lambda x: x < 0.3 and x != 0, tempr)
+      
+        if len(list(check)) == 0:
+            self.obstacle_detected = False
+            # if self.count < 20:
+
+            #     self.fnGoStraight()
+            #     self.count += 1
+            # else:
+            #     self.fnStop()
+        else:
+            # self.count = 0
+            # self.counter += 1
+            # self.fnTurn(self.x)
+            # if self.counter > 30:
+            #     self.x = self.x * -1
+            #     self.counter = -30
+            self.obstacle_detected = True
+           
+        msg.ranges = tempr
+        msg.range_max = 0.3
+       
+        #self.scan_pub.publish(msg)
+
+        # if not self._initialized:
+        #     rospy.logerr("%s: Was not initialized.", self._name)
+        #     return
+
+        # # Get our current pose from TF.
+        # try:
+        #     pose = self._tf_buffer.lookup_transform(
+        #         self._fixed_frame, self._sensor_frame, rospy.Time())
+        # except (tf2_ros.LookupException,
+        #         tf2_ros.ConnectivityException,
+        #         tf2_ros.ExtrapolationException):
+        #     # Writes an error message to the ROS log but does not raise an exception
+        #     # rospy.logerr("%s: Could not extract pose from TF.", self._name)
+        #     return
+
+        # Extract x, y coordinates and heading (yaw) angle of the turtlebot, 
+        # assuming that the turtlebot is on the ground plane.
+        # sensor_x = pose.transform.translation.x
+        # sensor_y = pose.transform.translation.y
+        # if abs(pose.transform.translation.z) > 0.05:
+        #     rospy.logwarn("%s: Turtlebot is not on ground plane.", self._name)
+
+        # (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
+        #     [pose.transform.rotation.x, pose.transform.rotation.y,
+        #      pose.transform.rotation.z, pose.transform.rotation.w])
+        # if abs(roll) > 0.1 or abs(pitch) > 0.1:
+        #     rospy.logwarn("%s: Turtlebot roll/pitch is too large.", self._name)
+
+        # threshold_dist = 3
+
+        #         # Loop over all ranges in the LaserScan.
+        # for idx, r in enumerate(msg.ranges):
+
+        #     # Randomly throw out some rays to speed this up.
+        #     if np.random.rand() > self._random_downsample:
+        #         continue
+        #     elif np.isnan(r):
+        #         continue
+
+
+        #     # Get angle of this ray in fixed frame.
+        #     # TODO!
+        #     angle_robot = msg.angle_min + idx * msg.angle_increment
+        #     angle_frame = angle_robot + yaw
+
+        #     if r > threshold_dist:
+        #         rospy.logwarn("range is hit")
+
+
+
+        #     # Throw out this point if it is too close or too far away.
+        #     if r > msg.range_max:
+        #         rospy.logwarn("%s: Range %f > %f was too large.",
+        #                       self._name, r, msg.range_max)
+        #         continue
+        #     if r < msg.range_min:
+        #         rospy.logwarn("%s: Range %f < %f was too small.",
+        #                       self._name, r, msg.range_min)
+        #         continue
 
     def main(self):
         rospy.spin()
