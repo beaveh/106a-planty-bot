@@ -45,7 +45,7 @@ class AutomaticParkingVision():
                                     self.SensorCallback,
                                     queue_size=1)
 
-        self.ParkingSequence = Enum('ParkingSequence', 'searching_parking_lot changing_direction moving_nearby_parking_lot parking watering stop finished')
+        self.ParkingSequence = Enum('ParkingSequence', 'searching_parking_lot changing_direction moving_nearby_parking_lot parking watering stop return_home finished')
         self.NearbySequence = Enum('NearbySequence', 'initial_turn go_straight turn_right parking')
         self.ObstacleAvoidanceSequence = Enum('ObstacleAvoidanceSequence', 'search_for_space drive_straight')
         self.current_nearby_sequence = self.NearbySequence.initial_turn.value
@@ -76,7 +76,7 @@ class AutomaticParkingVision():
 
         self.is_odom_received = False
         self.is_marker_pose_received = False
-        self.marker_ids = [17, 0]
+        self.marker_ids = [9]
         self.current_marker = 0
 
         loop_rate = rospy.Rate(10) # 10hz
@@ -153,7 +153,7 @@ class AutomaticParkingVision():
                 self.current_parking_sequence = self.ParkingSequence.changing_direction.value
                 self.is_sequence_finished = False
 
-        elif self.obstacle_detected or self.currently_avoiding:
+        elif (self.obstacle_detected and self.current_parking_sequence == self.ParkingSequence.parking.value) or self.currently_avoiding:
             self.currently_avoiding = True
             self.is_sequence_finished = self.fnAvoidObstacle()
 
@@ -199,6 +199,9 @@ class AutomaticParkingVision():
             if self.current_marker != len(self.marker_ids) - 1:
                 self.current_parking_sequence = self.ParkingSequence.searching_parking_lot.value
                 self.current_marker += 1
+                self.marker_2d_pose_x_list = []
+                self.marker_2d_pose_y_list = []
+                self.is_marker_pose_received = False
             else:
                 print("Finished 5")
                 self.current_parking_sequence = self.ParkingSequence.finished.value
@@ -222,7 +225,7 @@ class AutomaticParkingVision():
         while rospy.get_time() - start_time < 3:
             self.fnStop()
         start_time = rospy.get_time()
-        while rospy.get_time() - start_time < 2:
+        while rospy.get_time() - start_time < 3:
             self.fnReverse()
         return True
         
@@ -297,9 +300,12 @@ class AutomaticParkingVision():
         while marker_angle > math.pi*2:
             marker_angle -= math.pi*2
         desired_angle_turn = start_angle - marker_angle
+
+        if desired_angle_turn > math.pi:
+            desired_angle_turn -= math.pi*2
        
         rospy.loginfo(f"marker_theta:{marker_angle}, robot_theta: {start_angle}, desired_angle_turn: {desired_angle_turn}")
-        desired_angle_turn = -1. * desired_angle_turn
+        #desired_angle_turn = -1. * desired_angle_turn
 
         self.fnTurn(desired_angle_turn)
         # desired_angle_turn = 0
@@ -482,7 +488,8 @@ class AutomaticParkingVision():
         return pos_x, pos_y, theta
 
     def fnGet2DMarkerPose(self, marker_odom_msg):
-        quaternion = (marker_odom_msg.pose.pose.orientation.x, marker_odom_msg.pose.pose.orientation.y, marker_odom_msg.pose.pose.orientation.z, marker_odom_msg.pose.pose.orientation.w)
+        #quaternion = (marker_odom_msg.pose.pose.orientation.x, marker_odom_msg.pose.pose.orientation.y, marker_odom_msg.pose.pose.orientation.z, marker_odom_msg.pose.pose.orientation.w)
+        quaternion = (marker_odom_msg.pose.pose.orientation.z, marker_odom_msg.pose.pose.orientation.x, marker_odom_msg.pose.pose.orientation.z, marker_odom_msg.pose.pose.orientation.w)
         theta = tf.transformations.euler_from_quaternion(quaternion)[2]
 
         theta = theta + np.pi / 2.
@@ -521,14 +528,14 @@ class AutomaticParkingVision():
         maxi = len(msg.ranges) - 10
         
         for idx, r in enumerate(msg.ranges):
-            if idx < 10: 
+            if idx < 10:
                 tempr.append(r)
             elif idx > 10 and idx < maxi:
                 tempr.append(0.0)
             else:
                 tempr.append(r)
 
-        check = filter(lambda x: x < 0.3 and x != 0, tempr)
+        check = filter(lambda x: x < 0.2 and x > msg.range_min and x != 0.0, tempr)
       
         if len(list(check)) == 0:
             self.obstacle_detected = False
@@ -549,68 +556,6 @@ class AutomaticParkingVision():
            
         msg.ranges = tempr
         msg.range_max = 0.3
-       
-        #self.scan_pub.publish(msg)
-
-        # if not self._initialized:
-        #     rospy.logerr("%s: Was not initialized.", self._name)
-        #     return
-
-        # # Get our current pose from TF.
-        # try:
-        #     pose = self._tf_buffer.lookup_transform(
-        #         self._fixed_frame, self._sensor_frame, rospy.Time())
-        # except (tf2_ros.LookupException,
-        #         tf2_ros.ConnectivityException,
-        #         tf2_ros.ExtrapolationException):
-        #     # Writes an error message to the ROS log but does not raise an exception
-        #     # rospy.logerr("%s: Could not extract pose from TF.", self._name)
-        #     return
-
-        # Extract x, y coordinates and heading (yaw) angle of the turtlebot, 
-        # assuming that the turtlebot is on the ground plane.
-        # sensor_x = pose.transform.translation.x
-        # sensor_y = pose.transform.translation.y
-        # if abs(pose.transform.translation.z) > 0.05:
-        #     rospy.logwarn("%s: Turtlebot is not on ground plane.", self._name)
-
-        # (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
-        #     [pose.transform.rotation.x, pose.transform.rotation.y,
-        #      pose.transform.rotation.z, pose.transform.rotation.w])
-        # if abs(roll) > 0.1 or abs(pitch) > 0.1:
-        #     rospy.logwarn("%s: Turtlebot roll/pitch is too large.", self._name)
-
-        # threshold_dist = 3
-
-        #         # Loop over all ranges in the LaserScan.
-        # for idx, r in enumerate(msg.ranges):
-
-        #     # Randomly throw out some rays to speed this up.
-        #     if np.random.rand() > self._random_downsample:
-        #         continue
-        #     elif np.isnan(r):
-        #         continue
-
-
-        #     # Get angle of this ray in fixed frame.
-        #     # TODO!
-        #     angle_robot = msg.angle_min + idx * msg.angle_increment
-        #     angle_frame = angle_robot + yaw
-
-        #     if r > threshold_dist:
-        #         rospy.logwarn("range is hit")
-
-
-
-        #     # Throw out this point if it is too close or too far away.
-        #     if r > msg.range_max:
-        #         rospy.logwarn("%s: Range %f > %f was too large.",
-        #                       self._name, r, msg.range_max)
-        #         continue
-        #     if r < msg.range_min:
-        #         rospy.logwarn("%s: Range %f < %f was too small.",
-        #                       self._name, r, msg.range_min)
-        #         continue
 
     def main(self):
         rospy.spin()
