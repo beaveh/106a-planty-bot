@@ -45,7 +45,7 @@ class AutomaticParkingVision():
                                     self.SensorCallback,
                                     queue_size=1)
 
-        self.ParkingSequence = Enum('ParkingSequence', 'searching_parking_lot changing_direction moving_nearby_parking_lot parking stop finished')
+        self.ParkingSequence = Enum('ParkingSequence', 'searching_parking_lot changing_direction moving_nearby_parking_lot parking watering stop finished')
         self.NearbySequence = Enum('NearbySequence', 'initial_turn go_straight turn_right parking')
         self.ObstacleAvoidanceSequence = Enum('ObstacleAvoidanceSequence', 'search_for_space drive_straight')
         self.current_nearby_sequence = self.NearbySequence.initial_turn.value
@@ -58,6 +58,8 @@ class AutomaticParkingVision():
         self.marker_2d_pose_x = .0
         self.marker_2d_pose_y = .0
         self.marker_2d_theta = .0
+        self.marker_2d_pose_x_list = []
+        self.marker_2d_pose_y_list = []
 
         self.previous_robot_2d_theta = .0
         self.total_robot_2d_theta = .0
@@ -74,6 +76,8 @@ class AutomaticParkingVision():
 
         self.is_odom_received = False
         self.is_marker_pose_received = False
+        self.marker_ids = [17, 0]
+        self.current_marker = 0
 
         loop_rate = rospy.Rate(10) # 10hz
         while not rospy.is_shutdown():
@@ -120,27 +124,26 @@ class AutomaticParkingVision():
 
     def cbGetMarkerOdom(self, markers_odom_msg):
         for marker_odom_msg in markers_odom_msg.markers:
-            if marker_odom_msg.id == MARKER_ID_DETECTION:
+            if marker_odom_msg.id == self.marker_ids[self.current_marker]:
                 if self.is_marker_pose_received == False:
                     self.is_marker_pose_received = True
                 
                 pos_x, pos_y, theta = self.fnGet2DMarkerPose(marker_odom_msg)
                 #rospy.loginfo(f"x: {pos_x}")
                 #rospy.loginfo(f"y: {pos_y}")
-                self.marker_2d_pose_x = pos_x
-                self.marker_2d_pose_y = pos_y
+                self.marker_2d_pose_x_list.append(pos_x)
+                self.marker_2d_pose_y_list.append(pos_y)
+                if len(self.marker_2d_pose_x_list) >= 10:
+                    self.marker_2d_pose_x_list.pop(0)
+                if len(self.marker_2d_pose_y_list) >= 10:
+                    self.marker_2d_pose_y_list.pop(0)
+                self.marker_2d_pose_x = sum(self.marker_2d_pose_x_list)/len(self.marker_2d_pose_x_list)
+                self.marker_2d_pose_y = sum(self.marker_2d_pose_y_list)/len(self.marker_2d_pose_y_list)
                 self.marker_2d_theta = theta - math.pi
 
     def fnParking(self):
         if self.current_parking_sequence == self.ParkingSequence.finished.value:
             pass
-        elif self.obstacle_detected or self.currently_avoiding:
-            self.currently_avoiding = True
-            self.is_sequence_finished = self.fnAvoidObstacle()
-
-            if self.is_sequence_finished:
-                self.is_sequence_finished = False
-                self.current_parking_sequence = self.ParkingSequence.searching_parking_lot.value
             
         elif self.current_parking_sequence == self.ParkingSequence.searching_parking_lot.value:
             self.is_sequence_finished = self.fnSeqSearchingGoal()
@@ -149,6 +152,14 @@ class AutomaticParkingVision():
                 print("Finished 1")
                 self.current_parking_sequence = self.ParkingSequence.changing_direction.value
                 self.is_sequence_finished = False
+
+        elif self.obstacle_detected or self.currently_avoiding:
+            self.currently_avoiding = True
+            self.is_sequence_finished = self.fnAvoidObstacle()
+
+            if self.is_sequence_finished:
+                self.is_sequence_finished = False
+                self.current_parking_sequence = self.ParkingSequence.searching_parking_lot.value
 
         elif self.current_parking_sequence == self.ParkingSequence.changing_direction.value:
             print("changing_direction")
@@ -173,23 +184,48 @@ class AutomaticParkingVision():
             
             if self.is_sequence_finished == True:
                 print("Finished 4")
+                self.current_parking_sequence = self.ParkingSequence.watering.value
+                self.is_sequence_finished = False
+
+        elif self.current_parking_sequence == self.ParkingSequence.watering.value:
+            self.is_sequence_finished = self.fnSeqWatering()
+            if self.is_sequence_finished:
                 self.current_parking_sequence = self.ParkingSequence.stop.value
                 self.is_sequence_finished = False
 
+
         elif self.current_parking_sequence == self.ParkingSequence.stop.value:
             self.fnStop()
-            print("Finished 5")
-            self.current_parking_sequence = self.ParkingSequence.finished.value
-            rospy.on_shutdown(self.fnShutDown)
+            if self.current_marker != len(self.marker_ids) - 1:
+                self.current_parking_sequence = self.ParkingSequence.searching_parking_lot.value
+                self.current_marker += 1
+            else:
+                print("Finished 5")
+                self.current_parking_sequence = self.ParkingSequence.finished.value
+                rospy.on_shutdown(self.fnShutDown)
 
     def fnSeqSearchingGoal(self):
         if self.is_marker_pose_received is False:
             self.desired_angle_turn = -0.6
             self.fnTurn(self.desired_angle_turn)
         else:
-            self.fnStop()
-            rospy.sleep(3)
+            start_time = rospy.get_time()
+            while rospy.get_time() - start_time > 2.5:
+                self.fnStop()
             return True
+
+    def fnSeqWatering(self):
+        start_time = rospy.get_time()
+        while rospy.get_time() - start_time < 2:
+            self.fnGoStraight()
+        start_time = rospy.get_time()
+        while rospy.get_time() - start_time < 3:
+            self.fnStop()
+        start_time = rospy.get_time()
+        while rospy.get_time() - start_time < 2:
+            self.fnReverse()
+        return True
+        
 
     def fnAvoidObstacle(self):
         if self.current_obstacle_avoid_sequence == self.ObstacleAvoidanceSequence.search_for_space.value:
@@ -369,9 +405,6 @@ class AutomaticParkingVision():
         rospy.loginfo(f"distance: {self.marker_2d_pose_x}")
         if abs(self.marker_2d_pose_x) < 0.48:
             self.fnStop()
-            start_time = rospy.get_time()
-            while rospy.get_time() - start_time < 2:
-                self.fnGoStraight()
             return True
         else:
             return False
@@ -403,6 +436,16 @@ class AutomaticParkingVision():
     def fnGoStraight(self):
         twist = Twist()
         twist.linear.x = 0.1
+        twist.linear.y = 0
+        twist.linear.z = 0
+        twist.angular.x = 0
+        twist.angular.y = 0
+        twist.angular.z = 0
+        self.pub_cmd_vel.publish(twist)
+    
+    def fnReverse(self):
+        twist = Twist()
+        twist.linear.x = -0.1
         twist.linear.y = 0
         twist.linear.z = 0
         twist.angular.x = 0
