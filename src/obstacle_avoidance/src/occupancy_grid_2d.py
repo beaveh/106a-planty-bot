@@ -102,6 +102,21 @@ class OccupancyGrid2d(object):
             return False
         self._sensor_frame = rospy.get_param("~frames/sensor")
 
+
+        if not rospy.has_param("~topics/sensor"):
+            return False
+        self._sensor_topic = rospy.get_param("~topics/sensor")
+
+
+        if not rospy.has_param("~frames/fixed"):
+            return False
+        self._fixed_frame = rospy.get_param("~frames/fixed")
+
+
+        if not rospy.has_param("~frames/sensor"):
+            return False
+        self._sensor_frame = rospy.get_param("~frames/sensor")
+
         return True
 
     def RegisterCallbacks(self):
@@ -116,7 +131,9 @@ class OccupancyGrid2d(object):
                                         Marker,
                                         queue_size=10)
 
-        self.scan_pub = rospy.Publisher('/Scan1', LaserScan, queue_size=10)
+        self.scan_str = rospy.Publisher('/ScanS', LaserScan, queue_size=10)
+        self.scan_r = rospy.Publisher('/ScanR', LaserScan, queue_size=10)
+        self.scan_l = rospy.Publisher('/ScanL', LaserScan, queue_size=10)
 
         self.pub_cmd_vel = rospy.Publisher('/cmd_vel1', Twist, queue_size=1)
         #self.pub_lidar = rospy.Publisher('/lidar', str, queue_size=1)
@@ -160,48 +177,72 @@ class OccupancyGrid2d(object):
     # Callback to process sensor measurements.
     def SensorCallback(self, msg):
         
-        return
-      
-
+        rospy.logerr(msg)
         
-        tempr = []
+        straight = []
+        right = []
+        left = []
 
         maxi = len(msg.ranges) - 10
         
         for idx, r in enumerate(msg.ranges):
             if idx < 10: 
-                tempr.append(r)
+                straight.append(r)
             elif idx > 10 and idx < maxi:
-                tempr.append(0.0)
+                straight.append(0.0)
             else:
-                tempr.append(r)
-
-
-
+                straight.append(r)
         
-        check = filter(lambda x: x < 0.3 and x != 0, tempr)
-      
-        if len(list(check)) == 0:
-            if self.count < 20:
-
-                self.fnGoStraight()
-                self.count += 1
+        for idx, r in enumerate(msg.ranges):
+            if idx < maxi/2: 
+                right.append(0.0)
+            elif idx > maxi/2 and idx < maxi:
+                right.append(r)
             else:
-                self.fnStop()
-        else:
-            self.count = 0
-            self.counter += 1
-            self.fnTurn(self.x)
-            if self.counter > 30:
-                self.x = self.x * -1
-                self.counter = -30
+                right.append(0.0)
+        
+        for idx, r in enumerate(msg.ranges):
+            if idx < 10: 
+                left.append(0.0)
+            elif idx >10 and idx < maxi/2:
+                left.append(r)
+            else:
+                left.append(0.0)
+
+        check = filter(lambda x: x < 0.25 and x != 0, straight)
+        straight = filter(lambda x: x < 0.25 and x != 0 and x > msg.range_min, straight)
+        left = filter(lambda x: x < 0.25 and x != 0 and x > msg.range_min, left)
+        right = filter(lambda x: x < 0.25 and x != 0 and x > msg.range_min, right)
+      
+        # if len(list(check)) == 0:
+        #     if self.count < 20:
+
+        #         self.fnGoStraight()
+        #         self.count += 1
+        #     else:
+        #         self.fnStop()
+        # else:
+        #     self.count = 0
+        #     self.counter += 1
+        #     self.fnTurn(self.x)
+        #     if self.counter > 30:
+        #         self.x = self.x * -1
+        #         self.counter = -30
            
 
 
-        msg.ranges = tempr
+        msg.ranges = list(straight)
         msg.range_max = 0.3
        
-        self.scan_pub.publish(msg)
+        self.scan_str.publish(msg)
+
+        msg.ranges = list(right)
+        msg.range_max = 0.3
+        self.scan_r.publish(msg)
+
+        msg.ranges = list(left)
+        msg.range_max = 0.3 
+        self.scan_l.publish(msg)
 
         if not self._initialized:
             rospy.logerr("%s: Was not initialized.", self._name)

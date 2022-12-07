@@ -37,17 +37,20 @@ class AutomaticParkingVision():
     def __init__(self):
         self.sub_odom_robot = rospy.Subscriber('/odom', Odometry, self.cbGetRobotOdom, queue_size = 1)
         self.sub_info_marker = rospy.Subscriber('/ar_pose_marker', AlvarMarkers, self.cbGetMarkerOdom, queue_size = 1)
+        self.sub_scan_left = rospy.Subscriber('/ScanL', LaserScan, self.SensorCallbackLeft, queue_size=1)
+        self.sub_scan_right = rospy.Subscriber('/ScanR', LaserScan, self.SensorCallbackRight, queue_size=1)
+        self.sub_scan_straight = rospy.Subscriber('/ScanS', LaserScan, self.SensorCallbackStraight, queue_size=1)
         # self.sub_lidar = rospy.Subscriber('/cmd_vel1', Twist, self.obstacle, queue_size=1)
 
         self.pub_cmd_vel = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
-        self._sensor_sub = rospy.Subscriber('/scan',
-                                    LaserScan,
-                                    self.SensorCallback,
-                                    queue_size=1)
+        # self._sensor_sub = rospy.Subscriber('/scan',
+        #                             LaserScan,
+        #                             self.SensorCallback,
+        #                             queue_size=1)
 
         self.ParkingSequence = Enum('ParkingSequence', 'searching_parking_lot changing_direction moving_nearby_parking_lot parking watering stop return_home finished')
         self.NearbySequence = Enum('NearbySequence', 'initial_turn go_straight turn_right parking')
-        self.ObstacleAvoidanceSequence = Enum('ObstacleAvoidanceSequence', 'search_for_space drive_straight')
+        self.ObstacleAvoidanceSequence = Enum('ObstacleAvoidanceSequence', 'search_for_space turn_90 drive_straight')
         self.current_nearby_sequence = self.NearbySequence.initial_turn.value
         self.current_parking_sequence = self.ParkingSequence.searching_parking_lot.value
         self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.search_for_space.value
@@ -69,35 +72,39 @@ class AutomaticParkingVision():
         self.is_sequence_finished = False
         self.obstacle_detected = False
         self.currently_avoiding = False
+        self.avoiding_left = False
+        self.avoiding_right = False
+        self.obstacle_left = []
+        self.obstacle_right = []
         self.obstacle_twist = None
 
         self.search_left = False
-        self.avoid_turn_angle = 0.5
+        self.avoid_turn_angle = 0.8
 
         self.is_odom_received = False
         self.is_marker_pose_received = False
-        self.marker_ids = [9]
+        self.marker_ids = [14, 17]
         self.current_marker = 0
 
         loop_rate = rospy.Rate(10) # 10hz
         while not rospy.is_shutdown():
             if self.is_odom_received is True:
                 self.fnParking()
-                #self.fnStop()
+                # self.fnStop()
             
             loop_rate.sleep()
 
         rospy.on_shutdown(self.fnShutDown)
 
-    def cbObstacle(self, twist):
-        self.obstacle_detected = True
-        self.obstacle_twist = twist
-        try:
-            if twist.linear.x == 0 and twist.angular.z == 0:
-                self.obstacle_detected = False
-        except:
-            pass
-        #self.pub_cmd_vel.publish(twist)
+    # def cbObstacle(self, twist):
+    #     self.obstacle_detected = True
+    #     self.obstacle_twist = twist
+    #     try:
+    #         if twist.linear.x == 0 and twist.angular.z == 0:
+    #             self.obstacle_detected = False
+    #     except:
+    #         pass
+    #     #self.pub_cmd_vel.publish(twist)
 
     def cbGetRobotOdom(self, robot_odom_msg):
         if self.is_odom_received == False:
@@ -170,14 +177,14 @@ class AutomaticParkingVision():
                 self.current_parking_sequence = self.ParkingSequence.parking.value
                 self.is_sequence_finished = False
 
-        # elif self.current_parking_sequence == self.ParkingSequence.moving_nearby_parking_lot.value:
-        #     print("moving_nearby_parking_lot")
-        #     self.is_sequence_finished = self.fnSeqMovingNearbyParkingLot()
+        elif self.current_parking_sequence == self.ParkingSequence.moving_nearby_parking_lot.value:
+            print("moving_nearby_parking_lot")
+            self.is_sequence_finished = self.fnSeqMovingNearbyParkingLot()
             
-        #     if self.is_sequence_finished == True:
-        #         print("Finished 3")
-        #         self.current_parking_sequence = self.ParkingSequence.parking.value
-        #         self.is_sequence_finished = False
+            if self.is_sequence_finished == True:
+                print("Finished 3")
+                self.current_parking_sequence = self.ParkingSequence.parking.value
+                self.is_sequence_finished = False
 
         elif self.current_parking_sequence == self.ParkingSequence.parking.value:
             self.is_sequence_finished = self.fnSeqParking()
@@ -249,20 +256,45 @@ class AutomaticParkingVision():
                         self.fnTurn(0.6)
                 else:
                     self.search_left = not self.search_left
-                    self.avoid_turn_angle += 0.2
+                    self.avoid_turn_angle = self.avoid_turn_angle*2 + 0.2
                     self.is_triggered = False
             else:
-                start_time = rospy.get_time()
-                while rospy.get_time() - start_time < 2:
-                    if self.search_left:
-                        self.fnTurn(-0.6)
-                    else:
-                        self.fnTurn(0.6)
-                self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.drive_straight.value
+                self.avoid_turn_angle = 0.8
+                # start_time = rospy.get_time()
+                # while rospy.get_time() - start_time < 2:
+                #     if self.search_left:
+                #         self.fnTurn(-0.6)
+                #     else:
+                #         self.fnTurn(0.6)
+                self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.turn_90.value
+        elif self.current_obstacle_avoid_sequence == self.ObstacleAvoidanceSequence.turn_90.value:
+            if self.search_left:
+                #desired_angle = self.initial_robot_pose_theta + math.pi/2
+                while abs(self.robot_2d_theta - self.initial_robot_pose_theta) < math.pi/2:
+                    self.fnTurn(-0.6)
+                while len(self.obstacle_right) > 0:
+                    self.fnGoStraight()
+                while abs(self.robot_2d_theta - self.initial_robot_pose_theta) > 0.1:
+                    self.fnTurn(0.6)
+            else:
+                #desired_angle = self.initial_robot_pose_theta - math.pi/2
+                while abs(self.robot_2d_theta - self.initial_robot_pose_theta) < math.pi/2:
+                    self.fnTurn(0.6)
+                while len(self.obstacle_left) > 0:
+                    self.fnGoStraight()
+                while abs(self.robot_2d_theta - self.initial_robot_pose_theta) > 0.1:
+                    self.fnTurn(-0.6)
+            self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.drive_straight.value
         elif self.current_obstacle_avoid_sequence == self.ObstacleAvoidanceSequence.drive_straight.value:
             start_time = rospy.get_time()
-            while rospy.get_time() - start_time < 2.5:
+            while rospy.get_time() - start_time < 2:
                 self.fnGoStraight()
+            if self.search_left:
+                while len(self.obstacle_right) > 0:
+                    self.fnGoStraight()
+            else:
+                while len(self.obstacle_left) > 0:
+                    self.fnGoStraight()             
             # start_time = rospy.get_time()
             # while rospy.get_time() - start_time < 3:
             #     if self.search_left:
@@ -274,6 +306,7 @@ class AutomaticParkingVision():
             #     self.fnGoStraight()
             self.fnStop()
             self.currently_avoiding = False
+            self.is_triggered = False
             self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.search_for_space.value
             return True
         return False
@@ -409,7 +442,7 @@ class AutomaticParkingVision():
         self.fnTrackMarker(-desired_angle_turn)
         distance = self.fnCalcDistPoints(self.marker_2d_pose_x, self.robot_2d_pose_x, self.marker_2d_pose_y, self.robot_2d_pose_y)
         rospy.loginfo(f"distance: {self.marker_2d_pose_x}")
-        if abs(self.marker_2d_pose_x) < 0.48:
+        if abs(self.marker_2d_pose_x) < 0.51:
             self.fnStop()
             return True
         else:
@@ -521,8 +554,20 @@ class AutomaticParkingVision():
         twist.angular.y = 0
         twist.angular.z = 0
         self.pub_cmd_vel.publish(twist)
+    
+    def SensorCallbackLeft(self, msg):
+        self.obstacle_left = msg.ranges
 
-    def SensorCallback(self, msg):
+    def SensorCallbackRight(self, msg):
+        self.obstacle_right = msg.ranges
+
+    def SensorCallbackStraight(self, msg):
+        if len(list(msg.ranges)) == 0:
+            self.obstacle_detected = False
+        else:
+            self.obstacle_detected = True
+        return
+
         tempr = []
 
         maxi = len(msg.ranges) - 10
