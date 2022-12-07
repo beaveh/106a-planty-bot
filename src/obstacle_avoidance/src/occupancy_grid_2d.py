@@ -177,42 +177,58 @@ class OccupancyGrid2d(object):
     # Callback to process sensor measurements.
     def SensorCallback(self, msg):
         
-        rospy.logerr(msg)
+        # rospy.logerr(msg)
         
         straight = []
         right = []
         left = []
+        angle_increment_deg = msg.angle_increment*360/(2*math.pi)
+        upper = len(msg.ranges) - 30//angle_increment_deg
+        lower = 30//angle_increment_deg
+        maxi = len(msg.ranges) - 15
 
-        maxi = len(msg.ranges) - 10
-        
         for idx, r in enumerate(msg.ranges):
-            if idx < 10: 
+            if idx < lower or idx > upper:
                 straight.append(r)
-            elif idx > 10 and idx < maxi:
+            else:
                 straight.append(0.0)
-            else:
-                straight.append(r)
+            # elif idx > 15 and idx < maxi:
+            #     # straight.append(0.0)
+            #     continue
+            # else:
+            #     straight.append(r)
         
         for idx, r in enumerate(msg.ranges):
-            if idx < maxi/2: 
-                right.append(0.0)
-            elif idx > maxi/2 and idx < maxi:
-                right.append(r)
-            else:
-                right.append(0.0)
-        
-        for idx, r in enumerate(msg.ranges):
-            if idx < 10: 
-                left.append(0.0)
-            elif idx >10 and idx < maxi/2:
+            if idx > 30 and idx < 90:
                 left.append(r)
             else:
                 left.append(0.0)
+            # if idx < maxi/2: 
+            #     right.append(0.0)
+            # elif idx > maxi/2 and idx < maxi:
+            #     right.append(r)
+            # else:
+            #     right.append(0.0)
+        
+        for idx, r in enumerate(msg.ranges):
+            if idx < len(msg.ranges) - 30 and idx > len(msg.ranges) - 90:
+                right.append(r)
+            else:
+                right.append(0.0)
+            # if idx < 10: 
+            #     left.append(0.0)
+            # elif idx >10 and idx < maxi/2:
+            #     left.append(r)
+            # else:
+            #     left.append(0.0)
 
         check = filter(lambda x: x < 0.25 and x != 0, straight)
-        straight = filter(lambda x: x < 0.25 and x != 0 and x > msg.range_min, straight)
-        left = filter(lambda x: x < 0.25 and x != 0 and x > msg.range_min, left)
-        right = filter(lambda x: x < 0.25 and x != 0 and x > msg.range_min, right)
+        straight = filter(lambda x: x < 0.25 and x != 0.0 and x > msg.range_min, straight)
+        left = filter(lambda x: x < 0.25 and x != 0.0 and x > msg.range_min, left)
+        right = filter(lambda x: x < 0.25 and x != 0.0 and x > msg.range_min, right)
+        # print(list(straight))
+        # print(list(left))
+        # print(list(right))
       
         # if len(list(check)) == 0:
         #     if self.count < 20:

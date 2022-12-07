@@ -79,32 +79,22 @@ class AutomaticParkingVision():
         self.obstacle_twist = None
 
         self.search_left = False
-        self.avoid_turn_angle = 0.8
+        self.avoid_turn_angle = 1
 
         self.is_odom_received = False
         self.is_marker_pose_received = False
-        self.marker_ids = [14, 17]
+        self.marker_ids = [17, 14]
         self.current_marker = 0
 
         loop_rate = rospy.Rate(10) # 10hz
         while not rospy.is_shutdown():
             if self.is_odom_received is True:
                 self.fnParking()
-                # self.fnStop()
+                #self.fnStop()
             
             loop_rate.sleep()
 
         rospy.on_shutdown(self.fnShutDown)
-
-    # def cbObstacle(self, twist):
-    #     self.obstacle_detected = True
-    #     self.obstacle_twist = twist
-    #     try:
-    #         if twist.linear.x == 0 and twist.angular.z == 0:
-    #             self.obstacle_detected = False
-    #     except:
-    #         pass
-    #     #self.pub_cmd_vel.publish(twist)
 
     def cbGetRobotOdom(self, robot_odom_msg):
         if self.is_odom_received == False:
@@ -140,9 +130,9 @@ class AutomaticParkingVision():
                 #rospy.loginfo(f"y: {pos_y}")
                 self.marker_2d_pose_x_list.append(pos_x)
                 self.marker_2d_pose_y_list.append(pos_y)
-                if len(self.marker_2d_pose_x_list) >= 10:
+                if len(self.marker_2d_pose_x_list) >= 5:
                     self.marker_2d_pose_x_list.pop(0)
-                if len(self.marker_2d_pose_y_list) >= 10:
+                if len(self.marker_2d_pose_y_list) >= 5:
                     self.marker_2d_pose_y_list.pop(0)
                 self.marker_2d_pose_x = sum(self.marker_2d_pose_x_list)/len(self.marker_2d_pose_x_list)
                 self.marker_2d_pose_y = sum(self.marker_2d_pose_y_list)/len(self.marker_2d_pose_y_list)
@@ -166,7 +156,10 @@ class AutomaticParkingVision():
 
             if self.is_sequence_finished:
                 self.is_sequence_finished = False
-                self.current_parking_sequence = self.ParkingSequence.searching_parking_lot.value
+                if self.obstacle_detected:
+                    self.current_parking_sequence = self.ParkingSequence.parking.value
+                else:
+                    self.current_parking_sequence = self.ParkingSequence.searching_parking_lot.value
 
         elif self.current_parking_sequence == self.ParkingSequence.changing_direction.value:
             print("changing_direction")
@@ -248,15 +241,21 @@ class AutomaticParkingVision():
                 self.initial_marker_pose_x = self.marker_2d_pose_x
                 self.initial_marker_pose_y = self.marker_2d_pose_y
             curr_theta = self.robot_2d_theta - self.initial_robot_pose_theta
+            if self.search_left:
+                desired_angle = self.initial_robot_pose_theta + self.avoid_turn_angle
+            else:
+                desired_angle = self.initial_robot_pose_theta - self.avoid_turn_angle
+            rospy.loginfo(f"desired_angle:{desired_angle}, curr_theta: {curr_theta}")
             if self.obstacle_detected:
-                if abs(curr_theta) < self.avoid_turn_angle:
+                if abs(curr_theta - desired_angle) > 0.05:
                     if self.search_left:
-                        self.fnTurn(-0.6)
+                        self.fnTurn(desired_angle)
                     else:
-                        self.fnTurn(0.6)
+                        self.fnTurn(desired_angle)
                 else:
                     self.search_left = not self.search_left
-                    self.avoid_turn_angle = self.avoid_turn_angle*2 + 0.2
+                    #self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.turn_90.value
+                    self.avoid_turn_angle = self.avoid_turn_angle + 0.2
                     self.is_triggered = False
             else:
                 self.avoid_turn_angle = 0.8
@@ -268,17 +267,25 @@ class AutomaticParkingVision():
                 #         self.fnTurn(0.6)
                 self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.turn_90.value
         elif self.current_obstacle_avoid_sequence == self.ObstacleAvoidanceSequence.turn_90.value:
+            curr_theta = self.robot_2d_theta - self.initial_robot_pose_theta
+            while curr_theta < 0.0:
+                curr_theta += math.pi*2
+            while curr_theta > math.pi*2:
+                curr_theta -= math.pi*2
             if self.search_left:
+                
+                desired_angle = self.initial_marker_pose_theta - math.pi/2
                 #desired_angle = self.initial_robot_pose_theta + math.pi/2
-                while abs(self.robot_2d_theta - self.initial_robot_pose_theta) < math.pi/2:
+                while abs(curr_theta - desired_angle) > 0.05:
                     self.fnTurn(-0.6)
                 while len(self.obstacle_right) > 0:
                     self.fnGoStraight()
                 while abs(self.robot_2d_theta - self.initial_robot_pose_theta) > 0.1:
                     self.fnTurn(0.6)
             else:
+                desired_angle = self.initial_marker_pose_theta + math.pi/2
                 #desired_angle = self.initial_robot_pose_theta - math.pi/2
-                while abs(self.robot_2d_theta - self.initial_robot_pose_theta) < math.pi/2:
+                while abs(curr_theta - desired_angle) > 0.05:
                     self.fnTurn(0.6)
                 while len(self.obstacle_left) > 0:
                     self.fnGoStraight()
@@ -459,7 +466,7 @@ class AutomaticParkingVision():
         self.pub_cmd_vel.publish(twist)
 
     def fnTurn(self, theta):
-        Kp = 0.5
+        Kp = 0.6
 
         angular_z = Kp * theta
 
@@ -493,7 +500,7 @@ class AutomaticParkingVision():
         self.pub_cmd_vel.publish(twist)
 
     def fnTrackMarker(self, theta):
-        Kp = 1.0
+        Kp = 0.9
 
         angular_z = Kp * theta
 
@@ -562,7 +569,7 @@ class AutomaticParkingVision():
         self.obstacle_right = msg.ranges
 
     def SensorCallbackStraight(self, msg):
-        if len(list(msg.ranges)) == 0:
+        if len(msg.ranges) == 0:
             self.obstacle_detected = False
         else:
             self.obstacle_detected = True
