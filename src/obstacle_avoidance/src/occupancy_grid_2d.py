@@ -183,8 +183,10 @@ class OccupancyGrid2d(object):
         right = []
         left = []
         angle_increment_deg = msg.angle_increment*360/(2*math.pi)
-        upper = len(msg.ranges) - 20//angle_increment_deg
-        lower = 20//angle_increment_deg
+        upper = len(msg.ranges) - 15//angle_increment_deg
+        lower = 15//angle_increment_deg
+        print(upper)
+        print(lower)
         maxi = len(msg.ranges) - 15
 
         for idx, r in enumerate(msg.ranges):
@@ -211,7 +213,7 @@ class OccupancyGrid2d(object):
             #     right.append(0.0)
         
         for idx, r in enumerate(msg.ranges):
-            if idx < len(msg.ranges) - 30 and idx > len(msg.ranges) - 90:
+            if idx < len(msg.ranges) - 30 and idx > len(msg.ranges) - 80:
                 right.append(r)
             else:
                 right.append(0.0)

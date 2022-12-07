@@ -50,7 +50,7 @@ class AutomaticParkingVision():
 
         self.ParkingSequence = Enum('ParkingSequence', 'searching_parking_lot changing_direction moving_nearby_parking_lot parking watering stop return_home finished')
         self.NearbySequence = Enum('NearbySequence', 'initial_turn go_straight turn_right parking')
-        self.ObstacleAvoidanceSequence = Enum('ObstacleAvoidanceSequence', 'search_for_space turn_90 move_sideways drive_straight')
+        self.ObstacleAvoidanceSequence = Enum('ObstacleAvoidanceSequence', 'search_for_space turn_90 move_sideways turn_back drive_straight')
         self.current_nearby_sequence = self.NearbySequence.initial_turn.value
         self.current_parking_sequence = self.ParkingSequence.searching_parking_lot.value
         self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.search_for_space.value
@@ -242,6 +242,55 @@ class AutomaticParkingVision():
                 self.initial_marker_pose_theta = self.marker_2d_theta
                 self.initial_marker_pose_x = self.marker_2d_pose_x
                 self.initial_marker_pose_y = self.marker_2d_pose_y
+            curr_theta = self.robot_2d_theta - self.initial_robot_pose_theta
+            if self.obstacle_detected:
+                if abs(curr_theta) < self.avoid_turn_angle:
+                    if self.search_left:
+                        self.fnTurn(-0.6)
+                    else:
+                        self.fnTurn(0.6)
+                else:
+                    self.search_left = not self.search_left
+                    self.avoid_turn_angle += 0.2
+                    self.is_triggered = False
+            else:
+                start_time = rospy.get_time()
+                while rospy.get_time() - start_time < 2:
+                    if self.search_left:
+                        self.fnTurn(-0.6)
+                    else:
+                        self.fnTurn(0.6)
+                self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.drive_straight.value
+        elif self.current_obstacle_avoid_sequence == self.ObstacleAvoidanceSequence.drive_straight.value:
+            start_time = rospy.get_time()
+            while rospy.get_time() - start_time < 2.5:
+                self.fnGoStraight()
+            # start_time = rospy.get_time()
+            # while rospy.get_time() - start_time < 3:
+            #     if self.search_left:
+            #         self.fnTurn(0.6)
+            #     else:
+            #         self.fnTurn(-0.6)
+            # start_time = rospy.get_time()
+            # while rospy.get_time() - start_time < 2.0:
+            #     self.fnGoStraight()
+            self.fnStop()
+            self.currently_avoiding = False
+            self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.search_for_space.value
+            return True
+        return False
+
+    # DONT PASTE HERE
+    def fnAvoidObstacle2(self):
+        if self.current_obstacle_avoid_sequence == self.ObstacleAvoidanceSequence.search_for_space.value:
+            if self.is_triggered == False:
+                self.is_triggered = True
+                self.initial_robot_pose_theta = self.robot_2d_theta
+                self.initial_robot_pose_x = self.robot_2d_pose_x
+                self.initial_robot_pose_y = self.robot_2d_pose_y
+                self.initial_marker_pose_theta = self.marker_2d_theta
+                self.initial_marker_pose_x = self.marker_2d_pose_x
+                self.initial_marker_pose_y = self.marker_2d_pose_y
                 rospy.logerr("FIRST TIME CALLED")
 
             curr_theta = self.robot_2d_theta - self.initial_robot_pose_theta
@@ -258,23 +307,21 @@ class AutomaticParkingVision():
             while desired_angle > math.pi*2:
                 desired_angle -= math.pi*2           
             rospy.loginfo(f"search for space desired_angle:{desired_angle}, curr_theta: {curr_theta}")
-            rospy.logerr("check obstacle_detected")
-            rospy.logerr(self.obstacle_detected)
             if self.obstacle_detected:
-                rospy.logerr("angle difference")
-                rospy.logerr(abs(curr_theta - desired_angle))
-                if abs(curr_theta - desired_angle) > 0.05:
+                if abs(curr_theta - desired_angle) > 0.01:
                     if self.search_left:
-                        self.fnTurn(curr_theta - desired_angle)
+                        self.fnTurn(-0.6)
                     else:
-                        self.fnTurn(curr_theta - desired_angle)
+                        self.fnTurn(0.6)
                 else:
+                    self.fnStop()
                     self.search_left = not self.search_left
                     #self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.turn_90.value
                     self.avoid_turn_angle = self.avoid_turn_angle + 0.2
                     #self.is_triggered = False
             else:
-                self.avoid_turn_angle = 0.8
+                self.fnStop()
+                self.avoid_turn_angle = 0.7
                 self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.turn_90.value
         elif self.current_obstacle_avoid_sequence == self.ObstacleAvoidanceSequence.turn_90.value:
             rospy.logerr("turning 90")
@@ -292,71 +339,49 @@ class AutomaticParkingVision():
             while desired_angle > math.pi*2:
                 desired_angle -= math.pi*2     
             rospy.loginfo(f"turn 90 desired_angle:{desired_angle}, curr_theta: {curr_theta}, initial_theta: {self.initial_robot_pose_theta}")
-            if abs(curr_theta - desired_angle) > 0.05:
+            if abs(curr_theta - desired_angle) > 0.01:
                 if self.search_left:
                     self.fnTurn(curr_theta - desired_angle)
                 else:
                     self.fnTurn(curr_theta - desired_angle)
             else:
-                self.avoid_turn_angle = 0.8
+                self.fnStop()
                 self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.move_sideways.value
-            # curr_theta = self.robot_2d_theta - self.initial_robot_pose_theta
-            # while curr_theta < 0.0:
-            #     curr_theta += math.pi*2
-            # while curr_theta > math.pi*2:
-            #     curr_theta -= math.pi*2
-            # if self.search_left:
-            #     desired_angle = self.initial_robot_pose_theta + math.pi/2
-            #     #rospy.loginfo(f"turn 90 desired_angle:{desired_angle}, curr_theta: {curr_theta}")
-            #     while desired_angle < 0.0:
-            #         desired_angle += math.pi*2
-            #     while desired_angle > math.pi*2:
-            #         desired_angle -= math.pi*2
-            #     #desired_angle = self.initial_robot_pose_theta + math.pi/2
-            #     while abs(curr_theta - desired_angle) > 0.05:
-            #         self.fnTurn(-0.6)
-            #         curr_theta = self.robot_2d_theta - self.initial_robot_pose_theta
-            #         while curr_theta < 0.0:
-            #             curr_theta += math.pi*2
-            #         while curr_theta > math.pi*2:
-            #             curr_theta -= math.pi*2
-            #         rospy.loginfo(f"turn 90 desired_angle:{desired_angle}, curr_theta: {curr_theta}")
-            #     while len(self.obstacle_right) > 0:
-            #         self.fnGoStraight()
-            #     while abs(self.robot_2d_theta - self.initial_robot_pose_theta) > 0.1:
-            #         self.fnTurn(0.6)
-            # else:
-            #     desired_angle = self.initial_robot_pose_theta - math.pi/2
-            #     while desired_angle < 0.0:
-            #         desired_angle += math.pi*2
-            #     while desired_angle > math.pi*2:
-            #         desired_angle -= math.pi*2
-            #     #desired_angle = self.initial_robot_pose_theta - math.pi/2
-            #     while abs(curr_theta - desired_angle) > 0.05:
-            #         self.fnTurn(0.6)
-            #         curr_theta = self.robot_2d_theta - self.initial_robot_pose_theta
-            #         while curr_theta < 0.0:
-            #             curr_theta += math.pi*2
-            #         while curr_theta > math.pi*2:
-            #             curr_theta -= math.pi*2
-            #         rospy.loginfo(f"turn 90 desired_angle:{desired_angle}, curr_theta: {curr_theta}")
-            #     while len(self.obstacle_left) > 0:
-            #         self.fnGoStraight()
-            #     while abs(self.robot_2d_theta - self.initial_robot_pose_theta) > 0.1:
-            #         self.fnTurn(-0.6)
-            # self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.drive_straight.value
         elif self.current_obstacle_avoid_sequence == self.ObstacleAvoidanceSequence.move_sideways.value:
             rospy.logerr("MOVING SIDEWAYS")
             if self.search_left:
                 if len(self.obstacle_right) > 0:
                     self.fnGoStraight()
                 else:
-                    self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.drive_straight.value
+                    self.fnStop()
+                    self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.turn_back.value
             else:
                 if len(self.obstacle_left) > 0:
                     self.fnGoStraight()
                 else:
-                    self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.drive_straight.value   
+                    self.fnStop()
+                    self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.turn_back.value
+        elif self.current_obstacle_avoid_sequence == self.ObstacleAvoidanceSequence.turn_back.value:
+            rospy.logerr("turning back")
+            curr_theta = self.robot_2d_theta - self.initial_robot_pose_theta
+            desired_angle = self.initial_robot_pose_theta
+            while curr_theta < 0:
+                curr_theta += math.pi*2
+            while curr_theta > math.pi*2:
+                curr_theta -= math.pi*2
+            while desired_angle < 0:
+                desired_angle += math.pi*2
+            while desired_angle > math.pi*2:
+                desired_angle -= math.pi*2     
+            rospy.loginfo(f"turn back desired_angle:{desired_angle}, curr_theta: {curr_theta}, initial_theta: {self.initial_robot_pose_theta}")
+            if abs(curr_theta - desired_angle) > 0.01:
+                if self.search_left:
+                    self.fnTurn(0.6)
+                else:
+                    self.fnTurn(-0.6)
+            else:
+                self.fnStop()
+                self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.drive_straight.value
         elif self.current_obstacle_avoid_sequence == self.ObstacleAvoidanceSequence.drive_straight.value:
             start_time = rospy.get_time()
             while rospy.get_time() - start_time < 2:
