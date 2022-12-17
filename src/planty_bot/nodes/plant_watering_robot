@@ -1,24 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-################################################################################
-# Copyright 2018 ROBOTIS CO., LTD.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-################################################################################
-
-# Authors: Leon Jung
-
 import rospy
 import numpy as np
 import tf
@@ -33,20 +15,15 @@ from sensor_msgs.msg import LaserScan
 
 MARKER_ID_DETECTION = 17
 
-class AutomaticParkingVision():
+class PlantyBot():
     def __init__(self):
         self.sub_odom_robot = rospy.Subscriber('/odom', Odometry, self.cbGetRobotOdom, queue_size = 1)
         self.sub_info_marker = rospy.Subscriber('/ar_pose_marker', AlvarMarkers, self.cbGetMarkerOdom, queue_size = 1)
         self.sub_scan_left = rospy.Subscriber('/ScanL', LaserScan, self.SensorCallbackLeft, queue_size=1)
         self.sub_scan_right = rospy.Subscriber('/ScanR', LaserScan, self.SensorCallbackRight, queue_size=1)
         self.sub_scan_straight = rospy.Subscriber('/ScanS', LaserScan, self.SensorCallbackStraight, queue_size=1)
-        # self.sub_lidar = rospy.Subscriber('/cmd_vel1', Twist, self.obstacle, queue_size=1)
 
         self.pub_cmd_vel = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
-        # self._sensor_sub = rospy.Subscriber('/scan',
-        #                             LaserScan,
-        #                             self.SensorCallback,
-        #                             queue_size=1)
 
         self.ParkingSequence = Enum('ParkingSequence', 'searching_parking_lot changing_direction moving_nearby_parking_lot parking watering stop return_home finished')
         self.NearbySequence = Enum('NearbySequence', 'initial_turn go_straight turn_right parking')
@@ -265,22 +242,12 @@ class AutomaticParkingVision():
             start_time = rospy.get_time()
             while rospy.get_time() - start_time < 2.5:
                 self.fnGoStraight()
-            # start_time = rospy.get_time()
-            # while rospy.get_time() - start_time < 3:
-            #     if self.search_left:
-            #         self.fnTurn(0.6)
-            #     else:
-            #         self.fnTurn(-0.6)
-            # start_time = rospy.get_time()
-            # while rospy.get_time() - start_time < 2.0:
-            #     self.fnGoStraight()
             self.fnStop()
             self.currently_avoiding = False
             self.current_obstacle_avoid_sequence = self.ObstacleAvoidanceSequence.search_for_space.value
             return True
         return False
 
-    # DONT PASTE HERE
     def fnAvoidObstacle2(self):
         if self.current_obstacle_avoid_sequence == self.ObstacleAvoidanceSequence.search_for_space.value:
             if self.is_triggered == False:
@@ -618,7 +585,6 @@ class AutomaticParkingVision():
         return pos_x, pos_y, theta
 
     def fnGet2DMarkerPose(self, marker_odom_msg):
-        #quaternion = (marker_odom_msg.pose.pose.orientation.x, marker_odom_msg.pose.pose.orientation.y, marker_odom_msg.pose.pose.orientation.z, marker_odom_msg.pose.pose.orientation.w)
         quaternion = (marker_odom_msg.pose.pose.orientation.z, marker_odom_msg.pose.pose.orientation.x, marker_odom_msg.pose.pose.orientation.z, marker_odom_msg.pose.pose.orientation.w)
         theta = tf.transformations.euler_from_quaternion(quaternion)[2]
 
@@ -667,44 +633,10 @@ class AutomaticParkingVision():
             self.obstacle_detected = True
         return
 
-        tempr = []
-
-        maxi = len(msg.ranges) - 10
-        
-        for idx, r in enumerate(msg.ranges):
-            if idx < 10:
-                tempr.append(r)
-            elif idx > 10 and idx < maxi:
-                tempr.append(0.0)
-            else:
-                tempr.append(r)
-
-        check = filter(lambda x: x < 0.2 and x > msg.range_min and x != 0.0, tempr)
-      
-        if len(list(check)) == 0:
-            self.obstacle_detected = False
-            # if self.count < 20:
-
-            #     self.fnGoStraight()
-            #     self.count += 1
-            # else:
-            #     self.fnStop()
-        else:
-            # self.count = 0
-            # self.counter += 1
-            # self.fnTurn(self.x)
-            # if self.counter > 30:
-            #     self.x = self.x * -1
-            #     self.counter = -30
-            self.obstacle_detected = True
-           
-        msg.ranges = tempr
-        msg.range_max = 0.3
-
     def main(self):
         rospy.spin()
 
 if __name__ == '__main__':
-    rospy.init_node('automatic_parking_vision')
-    node = AutomaticParkingVision()
+    rospy.init_node('plant_watering_robot')
+    node = PlantyBot()
     node.main()
